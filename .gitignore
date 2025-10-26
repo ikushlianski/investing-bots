@@ -1,0 +1,17 @@
+node_modules
+dist
+.output
+.vinxi
+.wrangler
+.dev.vars
+.env
+.env.local
+.DS_Store
+*.log
+.turbo
+.cache
+coverage
+.idea
+*.swp
+*.swo
+*~
