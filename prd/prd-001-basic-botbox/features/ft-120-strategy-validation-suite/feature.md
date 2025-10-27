@@ -32,6 +32,7 @@ The Strategy Validation Suite is composed of three integrated tools that represe
 ### b. Backtesting Engine
 
 -   The core simulation engine that runs a defined strategy against historical data. It produces the key performance metrics (Sharpe ratio, drawdown, P&L, etc.) needed to evaluate a strategy's historical performance.
+-   **Slippage Modeling:** A conservative backtest should use 0.1% slippage as baseline, then stress-test with 0.3% to see if the strategy still works. If a strategy shows 0.3% profit per trade in backtest but uses a 0% slippage assumption, it has no edge and will likely lose money in live trading.
 
 ### c. Optimization Suite
 

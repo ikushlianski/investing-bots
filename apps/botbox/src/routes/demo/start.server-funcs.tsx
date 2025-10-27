@@ -4,7 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 
 const getCurrentServerTime = createServerFn({
   method: 'GET',
-}).handler(async () => await new Date().toISOString())
+}).handler(() => new Date().toISOString())
 
 export const Route = createFileRoute('/demo/start/server-funcs')({
   component: Home,
@@ -30,7 +30,7 @@ function Home() {
           <div className="text-xl">Current Time: {time}</div>
           <button
             className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors"
-            onClick={async () => setTime(await getCurrentServerTime())}
+            onClick={void (async () => setTime(await getCurrentServerTime()))}
           >
             Refresh
           </button>

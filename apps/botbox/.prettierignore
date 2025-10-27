@@ -1,0 +1,6 @@
+dist
+node_modules
+.output
+routeTree.gen.ts
+*.gen.ts
+coverage

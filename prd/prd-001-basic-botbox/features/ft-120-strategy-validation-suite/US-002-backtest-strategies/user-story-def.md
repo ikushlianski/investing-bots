@@ -15,6 +15,9 @@
     -   Timeframe (e.g., 1H).
     -   Date range.
 -   The backtesting engine will simulate the strategy's execution over the specified historical data, accounting for estimated fees and slippage.
+    -   The system should allow configuring a baseline slippage (e.g., 0.1%) and a stress-test slippage (e.g., 0.3%).
+    -   The backtest report must clearly indicate the slippage assumption used.
+    -   A warning should be issued if a strategy's profit per trade is less than or equal to the assumed slippage, indicating a lack of edge.
 -   Upon completion, the system must display a detailed performance report, including:
     -   Total P&L and Return %.
     -   Sharpe Ratio and Profit Factor.

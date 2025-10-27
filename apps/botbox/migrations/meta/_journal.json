@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1761598604163,
+      "tag": "0000_spicy_lady_mastermind",
+      "breakpoints": true
+    }
+  ]
+}

@@ -34,7 +34,7 @@ This feature defines the automated pipeline for testing, building, and deploying
 
 -   **Trigger:** The CD pipeline will be triggered automatically upon a successful merge to specific branches.
 -   **Environments:**
-    -   **Staging:** Merging to the `develop` or `staging` branch will automatically deploy the application to a dedicated staging environment on Cloudflare. This allows for final testing in a production-like setting before a full release.
+    -   **Development/Staging:** Merging to the `develop` or `staging` branch will automatically deploy the application to a dedicated development/staging environment on Cloudflare. This allows for final testing in a production-like setting before a full release.
     -   **Production:** Merging to the `main` branch (or creating a tagged release) will automatically deploy the application to the live production environment.
 -   **Zero-Downtime Deployments:** The deployment process will leverage Cloudflare Workers' capabilities to ensure that updates are rolled out seamlessly with no service interruption.
 

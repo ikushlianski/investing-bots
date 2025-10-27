@@ -13,6 +13,7 @@ The project requires a core application structure to host, run, and interact wit
 -   Establish a robust monorepo structure to facilitate code sharing and scalability.
 -   Define the deployment target and CI/CD strategy.
 -   Create the basic application shell for the primary web interface.
+-   Support a local development environment for rapid iteration.
 
 ## 3. Technology Stack (Decision)
 
@@ -20,7 +21,7 @@ The project requires a core application structure to host, run, and interact wit
 -   **Web Application Framework:** **TanStack Start** for the primary `botbox` web app.
 -   **Deployment Target:** **Cloudflare Workers**.
 -   **Database:** **Cloudflare D1**.
--   **UI Components:** A standard component library like **Shadcn/UI** or **Mantine**.
+-   **UI Components:** A standard component library like **Shadcn/UI**.
 
 ## 4. Architectural Design: The Monorepo
 
@@ -61,3 +62,55 @@ This structure ensures that critical business logic and types are developed inde
 ## 7. Dependencies
 
 -   None. This is the foundational feature upon which all others depend.
+
+## 8. Implementation Status
+
+### Completed Setup
+
+-   **Monorepo Conversion:** Project restructured into a pnpm monorepo with `apps/botbox`, `packages/core`, `packages/types`, and `packages/ui` directories. Root `package.json` and `pnpm-workspace.yaml` created.
+-   **Husky Pre-commit Hooks:** Husky installed and configured with a `pre-commit` hook to run `pnpm --filter=botbox precommit`.
+-   **Drizzle ORM Setup:** Drizzle ORM and Drizzle Kit installed in `apps/botbox`. `drizzle.config.ts` created, and a basic Drizzle schema (`instruments`, `bots`, `bot_instruments`) defined in `apps/botbox/src/db/schema.ts`.
+-   TanStack Start initialized with React 19 and TypeScript
+-   Vite build system configured with Cloudflare Workers plugin
+-   ESLint configured with:
+    -   TypeScript ESLint with type-aware linting
+    -   React and React Hooks plugins
+    -   JSX Accessibility plugin
+    -   Custom padding-line-between-statements rule for code style
+    -   Flat config format (modern ESLint)
+-   Prettier configured for consistent code formatting
+-   Vitest configured with:
+    -   React Testing Library integration
+    -   jsdom environment for browser-like testing
+    -   Coverage reporting with v8 provider
+    -   Co-located test files support
+-   Cloudflare D1 database binding configured in wrangler.jsonc
+-   Package.json scripts added for:
+    -   Testing: `test`, `test:watch`, `test:coverage`
+    -   Linting: `lint`, `lint:fix`
+    -   Formatting: `format`, `format:check`
+    -   Type checking: `typecheck`
+    -   Database operations: `db:create`, `db:migrations:create`, `db:migrations:apply`, `db:migrations:apply:local`
+    -   Pre-commit hook: `precommit` (format, lint, typecheck)
+
+### Key Configuration Files
+
+-   `/package.json` (root) - Monorepo package.json
+-   `/pnpm-workspace.yaml` (root) - pnpm workspace configuration
+-   `/.husky/pre-commit` - Husky pre-commit hook
+-   `/apps/botbox/vite.config.ts` - Vite build configuration with Vitest setup
+-   `/apps/botbox/eslint.config.js` - ESLint flat config with TypeScript and React rules
+-   `/apps/botbox/.prettierrc` - Prettier formatting rules
+-   `/apps/botbox/wrangler.jsonc` - Cloudflare Workers and D1 database configuration
+-   `/apps/botbox/tsconfig.json` - TypeScript compiler options with path aliases
+-   `/apps/botbox/src/test-setup.ts` - Vitest setup file for React Testing Library
+-   `/apps/botbox/drizzle.config.ts` - Drizzle Kit configuration
+-   `/apps/botbox/src/db/schema.ts` - Drizzle database schema
+
+## 9. To-Do List (Cloudflare D1 Database Setup)
+
+1.  **Create D1 Database:** Manually create a D1 database in your Cloudflare account. You can do this via the Cloudflare dashboard or by running `npx wrangler d1 create <YOUR_DATABASE_NAME>` in your terminal (from the `apps/botbox` directory).
+2.  **Update `wrangler.jsonc`:** Once the database is created, you will receive a `database_id`. Update the `database_id` field in `/apps/botbox/wrangler.jsonc` with this ID.
+3.  **Generate First Migration:** From the `apps/botbox` directory, run `pnpm db:migrations:create` to generate the initial migration based on the Drizzle schema.
+4.  **Apply Migration Locally:** To apply the migration to your local D1 development database, run `pnpm db:migrations:apply:local` from the `apps/botbox` directory.
+5.  **Apply Migration to Production (Optional):** To apply the migration to your live D1 database, run `pnpm db:migrations:apply` from the `apps/botbox` directory (after configuring your Cloudflare account for deployment).

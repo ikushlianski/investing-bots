@@ -27,6 +27,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@investing-tool/core": ["../../packages/core/src"],
+      "@investing-tool/types": ["../../packages/types/src"],
+      "@investing-tool/ui": ["../../packages/ui/src"]
     }
   }
 }

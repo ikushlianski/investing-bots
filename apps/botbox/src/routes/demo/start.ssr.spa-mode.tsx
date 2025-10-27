@@ -13,7 +13,7 @@ function RouteComponent() {
   >([])
 
   useEffect(() => {
-    getPunkSongs().then(setPunkSongs)
+    void getPunkSongs().then(setPunkSongs)
   }, [])
 
   return (

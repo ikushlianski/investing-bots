@@ -81,17 +81,14 @@ Focus: Advanced analytics and integrations
 ## Technical Architecture
 
 **Backend**: Cloudflare Workers (serverless, edge-deployed)
-**Database**: Neo4j (graph database for audit trails and relationships)
+**Database**: Sqlite from Cloudflare
 **Frontend**: React-based web UI (framework TBD)
 **Exchanges**: Binance and ByBit REST + WebSocket APIs
 
 **Key Design Decisions**:
 - Cloudflare Workers for zero infrastructure management
-- Neo4j for sophisticated audit queries and relationship tracking
 - TradingView-first design (works with existing charting workflow)
 - Multi-bot architecture from day one (not an afterthought)
-
-
 
 ## Strategy Development Focus
 
@@ -159,7 +156,6 @@ The development philosophy is to start with reliable execution of proven strateg
 
 **Technical**:
 - How to securely store exchange API credentials in Cloudflare Workers?
-- What's the backup strategy if Neo4j becomes unavailable during live trading?
 - Should webhook ingestion and exchange execution use separate Workers for fault isolation?
 
 **Product**:

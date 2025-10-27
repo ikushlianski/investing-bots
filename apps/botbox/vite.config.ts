@@ -8,7 +8,6 @@ import { cloudflare } from '@cloudflare/vite-plugin'
 const config = defineConfig({
   plugins: [
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
-    // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
@@ -16,6 +15,23 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test-setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        '**/*.config.*',
+        '**/*.gen.ts',
+        '**/test-setup.ts',
+        '**/*.test.{ts,tsx}',
+      ],
+    },
+  },
 })
 
 export default config

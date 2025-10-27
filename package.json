@@ -1,0 +1,19 @@
+{
+  "name": "investing-tool-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for the investing tool project",
+  "private": true,
+  "scripts": {
+    "install:all": "pnpm install",
+    "build:all": "pnpm --recursive build",
+    "test:all": "pnpm --recursive test",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
