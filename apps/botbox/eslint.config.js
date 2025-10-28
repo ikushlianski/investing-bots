@@ -53,7 +53,6 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/only-throw-error': 'off',
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'padding-line-between-statements': [
         'warn',
         { blankLine: 'always', prev: '*', next: 'return' },
