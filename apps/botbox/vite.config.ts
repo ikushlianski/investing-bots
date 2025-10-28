@@ -5,24 +5,34 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
 
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
+
 const config = defineConfig({
   plugins: [
-    cloudflare({
-      viteEnvironment: { name: 'ssr' },
-      persistState: true,
-      configPath: './wrangler.jsonc',
-    }),
+    !isTest &&
+      cloudflare({
+        viteEnvironment: { name: 'ssr' },
+        persistState: true,
+        configPath: './wrangler.jsonc',
+      }),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
-    tanstackStart(),
+    !isTest && tanstackStart(),
     viteReact(),
-  ],
+  ].filter(Boolean),
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
+    teardownTimeout: 2000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
