@@ -4,8 +4,8 @@ STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|
 
 if [ -n "$STAGED_FILES" ]; then
   echo "Linting staged files..."
-  pnpm lint $STAGED_FILES --fix
-  cd ../.. && git add apps/botbox/$STAGED_FILES && cd apps/botbox
+  echo "$STAGED_FILES" | xargs pnpm exec eslint --fix
+  echo "$STAGED_FILES" | xargs git add
 fi
 
 pnpm typecheck && \
