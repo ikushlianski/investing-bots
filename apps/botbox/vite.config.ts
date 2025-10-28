@@ -7,7 +7,11 @@ import { cloudflare } from '@cloudflare/vite-plugin'
 
 const config = defineConfig({
   plugins: [
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    cloudflare({
+      viteEnvironment: { name: 'ssr' },
+      persistState: true,
+      configPath: './wrangler.jsonc',
+    }),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),

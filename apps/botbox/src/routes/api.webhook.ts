@@ -5,7 +5,7 @@ import { z } from 'zod'
 const webhookPayloadSchema = z.object({
   event: z.string(),
   timestamp: z.number(),
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
 })
 
 type WebhookPayload = z.infer<typeof webhookPayloadSchema>

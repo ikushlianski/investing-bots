@@ -1,176 +1,121 @@
-import { Link } from '@tanstack/react-router'
-
+import { Link, useNavigate } from '@tanstack/react-router'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import {
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Menu,
-  Network,
-  SquareFunction,
-  StickyNote,
-  X,
-} from 'lucide-react'
 
-export default function Header() {
+import { logoutFn } from '../server/auth'
+
+type HeaderProps = {
+  userEmail: string
+}
+
+export default function Header({ userEmail }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [groupedExpanded, setGroupedExpanded] = useState<
-    Record<string, boolean>
-  >({})
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await logoutFn()
+    } catch (error) {
+      if (error instanceof Response) {
+        await navigate({ to: '/login', search: { redirect: undefined } })
+
+        return
+      }
+
+      throw error
+    }
+  }
 
   return (
     <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img
-              src="/tanstack-word-logo-white.svg"
-              alt="TanStack Logo"
-              className="h-10"
-            />
+      <header className="flex items-center justify-between border-b border-slate-800 bg-slate-900/80 px-6 py-4 backdrop-blur">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className="inline-flex items-center rounded-lg border border-transparent bg-slate-800/80 p-2 text-slate-200 transition hover:border-slate-700 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400 md:hidden"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 text-lg font-semibold text-white"
+          >
+            <span>Botbox</span>
           </Link>
-        </h1>
+        </div>
+
+        <nav className="hidden items-center gap-6 md:flex">
+          <Link
+            to="/dashboard"
+            className="text-sm font-medium text-slate-300 transition hover:text-white"
+            activeProps={{
+              className: 'text-sm font-semibold text-white',
+            }}
+          >
+            Dashboard
+          </Link>
+        </nav>
+
+        <div className="hidden items-center gap-4 md:flex">
+          <span className="text-sm text-slate-400">{userEmail}</span>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              void handleLogout()
+            }}
+          >
+            <button className="rounded-lg border border-red-500/40 bg-red-600/90 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400">
+              Sign out
+            </button>
+          </form>
+        </div>
       </header>
 
       <aside
-        className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-800 bg-slate-950/95 backdrop-blur transition-transform duration-200 ease-out md:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold">Navigation</h2>
+        <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+          <span className="text-base font-semibold text-white">Navigation</span>
           <button
+            type="button"
             onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            aria-label="Close menu"
+            className="rounded-lg border border-transparent p-2 text-slate-200 transition hover:border-slate-700 hover:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            aria-label="Close navigation menu"
           >
-            <X size={24} />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
+        <div className="flex flex-col gap-2 px-5 py-6">
           <Link
-            to="/"
+            to="/dashboard"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            className="rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-cyan-500/40 hover:bg-cyan-500/10 hover:text-white"
             activeProps={{
               className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+                'rounded-lg border border-cyan-500/60 bg-cyan-500/15 px-3 py-2 text-sm font-semibold text-white',
             }}
           >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
+            Dashboard
           </Link>
-
-          {/* Demo Links Start */}
-
-          <Link
-            to="/demo/start/server-funcs"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <SquareFunction size={20} />
-            <span className="font-medium">Start - Server Functions</span>
-          </Link>
-
-          <Link
-            to="/demo/start/api-request"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Network size={20} />
-            <span className="font-medium">Start - API Request</span>
-          </Link>
-
-          <div className="flex flex-row justify-between">
-            <Link
-              to="/demo/start/ssr"
-              onClick={() => setIsOpen(false)}
-              className="flex-1 flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-              activeProps={{
-                className:
-                  'flex-1 flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-              }}
-            >
-              <StickyNote size={20} />
-              <span className="font-medium">Start - SSR Demos</span>
-            </Link>
-            <button
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              onClick={() =>
-                setGroupedExpanded((prev) => ({
-                  ...prev,
-                  StartSSRDemo: !prev.StartSSRDemo,
-                }))
-              }
-            >
-              {groupedExpanded.StartSSRDemo ? (
-                <ChevronDown size={20} />
-              ) : (
-                <ChevronRight size={20} />
-              )}
-            </button>
+          <div className="rounded-lg border border-slate-800/70 bg-slate-900/70 px-3 py-2 text-xs text-slate-400">
+            Signed in as {userEmail}
           </div>
-          {groupedExpanded.StartSSRDemo && (
-            <div className="flex flex-col ml-4">
-              <Link
-                to="/demo/start/ssr/spa-mode"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <StickyNote size={20} />
-                <span className="font-medium">SPA Mode</span>
-              </Link>
-
-              <Link
-                to="/demo/start/ssr/full-ssr"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <StickyNote size={20} />
-                <span className="font-medium">Full SSR</span>
-              </Link>
-
-              <Link
-                to="/demo/start/ssr/data-only"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-                activeProps={{
-                  className:
-                    'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-                }}
-              >
-                <StickyNote size={20} />
-                <span className="font-medium">Data Only</span>
-              </Link>
-            </div>
-          )}
-
-          {/* Demo Links End */}
-        </nav>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              void handleLogout()
+            }}
+          >
+            <button className="flex w-full items-center justify-center rounded-lg border border-red-500/50 bg-red-600/90 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-500">
+              Sign out
+            </button>
+          </form>
+        </div>
       </aside>
     </>
   )

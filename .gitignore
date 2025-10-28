@@ -1,17 +1,30 @@
+# Dependency directories
 node_modules
+.pnpm-store
+
+# Build outputs
 dist
 .output
 .vinxi
+.turbo
+.cache
+coverage
+
+# Environment files and configs
 .wrangler
 .dev.vars
 .env
 .env.local
-.DS_Store
-*.log
-.turbo
-.cache
-coverage
+
+# IDE/editor files
 .idea
+.DS_Store
 *.swp
 *.swo
 *~
+
+# Logs
+*.log
+
+# Learning tech
+learning

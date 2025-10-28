@@ -19,7 +19,7 @@ The trading system will manage sensitive information (API keys) and control real
 ## 3. Chosen Authentication Method (Decision)
 
 -   **Method:** **Magic Link Authentication** (or a similar passwordless OAuth provider).
--   **Implementation:** A library such as **Lucia Auth**, **Auth.js**, or a managed service like **Clerk** will be used. These are well-suited for serverless environments like Cloudflare Workers.
+-   **Implementation:** A library such as nextauth or openauth will be used. These are well-suited for serverless environments like Cloudflare Workers.
 
 -   **Rationale:**
     -   **Passwordless:** Magic Link authentication is highly secure as it eliminates the risk of password theft and reuse. The user's email inbox becomes the secure vault.
@@ -32,6 +32,7 @@ The trading system will manage sensitive information (API keys) and control real
     1.  A user navigates to the login page and enters their email address.
     2.  The application sends an API request to the backend.
     3.  The backend generates a secure, single-use token and sends an email to the user containing a link with this token.
+    3.1. We use Cloudflare's ability to send emails or we use Resend free tier
     4.  The user clicks the link in their email.
     5.  The application verifies the token, establishes a user session (e.g., via a secure, HTTP-only cookie), and redirects the user to the main dashboard.
 -   **Session Management:** The chosen auth library will handle the creation, validation, and expiration of user sessions.
