@@ -57,7 +57,7 @@ for PACKAGE_DIR in $PROCESSED_PACKAGES; do
     done
 
     echo "  🔬 Type checking staged files..."
-    (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit $RELATIVE_FILES 2>/dev/null || true)
+    (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit --skipLibCheck $RELATIVE_FILES 2>&1 | grep -v "node_modules" || true)
 
     if [ -n "$TEST_FILES" ]; then
       echo "  🧪 Running tests for staged test files..."
