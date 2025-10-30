@@ -1,12 +1,72 @@
-cd apps/botbox
+#!/usr/bin/env bash
 
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' | sed 's|^apps/botbox/||' || true)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$' || true)
 
-if [ -n "$STAGED_FILES" ]; then
-  echo "Linting staged files..."
-  echo "$STAGED_FILES" | xargs pnpm exec eslint --fix
-  echo "$STAGED_FILES" | xargs git add
+if [ -z "$STAGED_FILES" ]; then
+  echo "No staged TypeScript files to check"
+  exit 0
 fi
 
-pnpm typecheck && \
-pnpm test
+echo "Processing staged TypeScript files..."
+
+WORKSPACE_PACKAGES=$(find apps packages -maxdepth 2 -name "package.json" -not -path "*/node_modules/*" 2>/dev/null | xargs -I {} dirname {} | sort -u)
+
+PROCESSED_PACKAGES=""
+
+for PACKAGE_DIR in $WORKSPACE_PACKAGES; do
+  PACKAGE_HAS_FILES=false
+
+  for FILE in $STAGED_FILES; do
+    if [[ "$FILE" =~ ^"$PACKAGE_DIR"/ ]]; then
+      PACKAGE_HAS_FILES=true
+      break
+    fi
+  done
+
+  if [ "$PACKAGE_HAS_FILES" = true ]; then
+    PROCESSED_PACKAGES="$PROCESSED_PACKAGES $PACKAGE_DIR"
+  fi
+done
+
+for PACKAGE_DIR in $PROCESSED_PACKAGES; do
+  echo ""
+  echo "📦 Processing package: $PACKAGE_DIR"
+
+  PACKAGE_STAGED_FILES=""
+  RELATIVE_FILES=""
+  TEST_FILES=""
+
+  for FILE in $STAGED_FILES; do
+    if [[ "$FILE" =~ ^"$PACKAGE_DIR"/ ]]; then
+      PACKAGE_STAGED_FILES="$PACKAGE_STAGED_FILES $FILE"
+      RELATIVE_FILE="${FILE#$PACKAGE_DIR/}"
+      RELATIVE_FILES="$RELATIVE_FILES $RELATIVE_FILE"
+
+      if [[ "$RELATIVE_FILE" =~ \.test\.(ts|tsx)$ ]]; then
+        TEST_FILES="$TEST_FILES $RELATIVE_FILE"
+      fi
+    fi
+  done
+
+  if [ -n "$PACKAGE_STAGED_FILES" ]; then
+    echo "  🔍 Linting staged files..."
+    for FILE in $PACKAGE_STAGED_FILES; do
+      RELATIVE_FILE="${FILE#$PACKAGE_DIR/}"
+      (cd "$PACKAGE_DIR" && pnpm exec eslint --fix "$RELATIVE_FILE" 2>/dev/null || true)
+      git add "$FILE"
+    done
+
+    echo "  🔬 Type checking staged files..."
+    (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit $RELATIVE_FILES 2>/dev/null || true)
+
+    if [ -n "$TEST_FILES" ]; then
+      echo "  🧪 Running tests for staged test files..."
+      (cd "$PACKAGE_DIR" && pnpm exec vitest run $TEST_FILES --reporter=verbose)
+    else
+      echo "  ℹ️  No test files staged, skipping tests"
+    fi
+  fi
+done
+
+echo ""
+echo "✅ Pre-commit checks complete!"

@@ -65,5 +65,5 @@ A trader will run multiple strategies on multiple assets, each with its own conf
 
 -   **ft-001-application-framework:** Provides the foundational UI and backend structure.
 -   **ft-118-strategy-management:** The bot configuration process is dependent on the library of available strategies.
--   **ft-010-exchange-connectivity:** Required to specify which exchange a bot will trade on.
+-   **ft-010-exchanges:** Required to specify which exchange a bot will trade on.
 -   **ft-030-instrument-whitelisting:** The selected instrument for a bot will be checked against the global whitelist.

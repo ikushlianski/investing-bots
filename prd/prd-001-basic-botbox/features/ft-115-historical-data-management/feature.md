@@ -2,7 +2,7 @@
 
 **Status:** Proposed
 **Priority:** P0 (Critical Blocker for Backtesting)
-**Depends On:** ft-010-exchange-connectivity
+**Depends On:** ft-010-exchanges
 
 ## 1. Problem Statement
 
@@ -54,12 +54,12 @@ Accurate backtesting (`ft-120`) and strategy optimization (`ft-125`) are impossi
 ## 5. Technical Implementation
 
 1.  **Setup Time-Series Database:** Deploy an instance of TimescaleDB (a PostgreSQL extension) or InfluxDB.
-2.  **Develop Fetcher Service:** Create a service that connects to the `ft-010-exchange-connectivity` module. It will have a function like `fetch_historical_data(symbol, timeframe, start_date, end_date)`.
+2.  **Develop Fetcher Service:** Create a service that connects to the `ft-010-exchanges` module. It will have a function like `fetch_historical_data(symbol, timeframe, start_date, end_date)`.
 3.  **Implement Scheduler:** Use a cron job or a similar scheduler to run the fetcher service nightly to get the previous day's data.
 4.  **Build Validation Logic:** After fetching, the service will run a series of checks (gap detection, outlier analysis) before committing the data to the database.
 5.  **Create Data API:** Build a simple REST API endpoint that allows other services to query the database. Implement caching to improve performance for frequently requested data.
 
 ## 6. Dependencies
 
-- **ft-010-exchange-connectivity:** Required to provide the API connectors for fetching data from exchanges.
+- **ft-010-exchanges:** Required to provide the API connectors for fetching data from exchanges.
 - **ft-120-backtesting:** This is the primary consumer of the historical data service. This feature is a hard dependency for the backtester to function correctly.

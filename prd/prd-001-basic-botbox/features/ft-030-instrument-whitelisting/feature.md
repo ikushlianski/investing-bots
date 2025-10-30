@@ -2,7 +2,7 @@
 
 **Status:** Proposed
 **Priority:** P0 (Critical for security and data integrity)
-**Depends On:** ft-010-exchange-connectivity
+**Depends On:** ft-010-exchanges
 
 ## 1. Problem Statement
 
@@ -48,12 +48,12 @@ Furthermore, the system needs a definitive, internal list of tradable instrument
 ## 5. Technical Implementation
 
 -   A new database table, `Instruments`, will be created.
--   A new service will be developed that uses the `ft-010-exchange-connectivity` module to call the `getSymbols` or equivalent endpoint on the exchange APIs.
+-   A new service will be developed that uses the `ft-010-exchanges` module to call the `getSymbols` or equivalent endpoint on the exchange APIs.
 -   The `Bots` configuration table will include a field to store the list of whitelisted instrument IDs for each bot.
 -   The `OrderExecutionEngine` will be updated to include the validation logic before an order is submitted.
 
 ## 6. Dependencies
 
--   **ft-010-exchange-connectivity:** Provides the API access needed to fetch the list of instruments from exchanges.
+-   **ft-010-exchanges:** Provides the API access needed to fetch the list of instruments from exchanges.
 -   **ft-100-bot-management:** The UI for configuring a bot's specific instrument whitelist.
 -   **ft-070-order-execution-engine:** The enforcement point for the whitelist check.
