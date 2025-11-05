@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { strategies } from './strategies'
+import { setups } from './setups'
 
 export const strategyVersions = sqliteTable('strategy_versions', {
   id: integer('id').primaryKey(),
@@ -19,6 +20,7 @@ export const signals = sqliteTable('signals', {
   strategyVersionId: integer('strategy_version_id')
     .notNull()
     .references(() => strategyVersions.id),
+  setupId: integer('setup_id').references(() => setups.id),
   signalType: text('signal_type').notNull(), // e.g., 'entry', 'exit'
   indicator: text('indicator'),
   timestamp: text('timestamp').notNull(),

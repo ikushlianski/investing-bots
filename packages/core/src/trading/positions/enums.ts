@@ -1,0 +1,14 @@
+export enum TradeStatus {
+  OPEN = "OPEN",
+  CLOSED = "CLOSED",
+}
+
+export enum ExitReason {
+  STOP_LOSS = "STOP_LOSS",
+  TAKE_PROFIT_1 = "TAKE_PROFIT_1",
+  TAKE_PROFIT_2 = "TAKE_PROFIT_2",
+  TRAILING_STOP = "TRAILING_STOP",
+  TIMEOUT = "TIMEOUT",
+  MANUAL = "MANUAL",
+  BREAKEVEN = "BREAKEVEN",
+}

@@ -1,6 +1,9 @@
-import { integer, sqliteTable, text, real } from 'drizzle-orm/sqlite-core'
-import { bots, instruments } from './core'
-import { orders } from './orders'
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { bots } from './bots'
+import { instruments } from './instruments'
+import { setups } from './setups'
+import { strategyVersions } from './strategy'
+import { numeric } from './types'
 
 export const positions = sqliteTable('positions', {
   id: integer('id').primaryKey(),
@@ -10,25 +13,15 @@ export const positions = sqliteTable('positions', {
   instrumentId: integer('instrument_id')
     .notNull()
     .references(() => instruments.id),
+  setupId: integer('setup_id').references(() => setups.id),
+  strategyVersionId: integer('strategy_version_id').references(
+    () => strategyVersions.id
+  ),
   status: text('status').notNull().default('open'), // 'open', 'closed'
-  entryPrice: real('entry_price').notNull(),
-  exitPrice: real('exit_price'),
-  size: real('size').notNull(),
-  pnl: real('pnl'),
+  entryPrice: numeric('entry_price', { precision: 20, scale: 8 }).notNull(),
+  exitPrice: numeric('exit_price', { precision: 20, scale: 8 }),
+  size: numeric('size', { precision: 20, scale: 8 }).notNull(),
+  pnl: numeric('pnl', { precision: 20, scale: 8 }),
   openedAt: text('opened_at').notNull(),
   closedAt: text('closed_at'),
-})
-
-export const trades = sqliteTable('trades', {
-  id: integer('id').primaryKey(),
-  orderId: integer('order_id')
-    .notNull()
-    .references(() => orders.id),
-  positionId: integer('position_id')
-    .notNull()
-    .references(() => positions.id),
-  price: real('price').notNull(),
-  quantity: real('quantity').notNull(),
-  fee: real('fee'),
-  timestamp: text('timestamp').notNull(),
 })

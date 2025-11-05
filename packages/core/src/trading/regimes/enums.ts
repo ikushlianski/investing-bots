@@ -1,0 +1,7 @@
+export enum MarketRegimeType {
+  TRENDING_UP = "TRENDING_UP",
+  TRENDING_DOWN = "TRENDING_DOWN",
+  RANGING = "RANGING",
+  VOLATILE = "VOLATILE",
+  NEUTRAL = "NEUTRAL",
+}
