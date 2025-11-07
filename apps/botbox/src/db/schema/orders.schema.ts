@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { bots } from './bots'
-import { instruments } from './instruments'
-import { credentials } from './credentials'
-import { setups } from './setups'
-import { signals, strategyVersions } from './strategy'
-import { numeric } from './types'
+import { bots } from './bots.schema'
+import { instruments } from './instruments.schema'
+import { credentials } from './credentials.schema'
+import { setups } from './setups.schema'
+import { signals, strategyVersions } from './strategy.schema'
+import { numeric } from './types.schema'
 
 export const orders = sqliteTable('orders', {
   id: int('id').primaryKey({ autoIncrement: true }),

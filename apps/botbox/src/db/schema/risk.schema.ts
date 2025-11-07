@@ -1,6 +1,6 @@
 import { int, sqliteTable } from 'drizzle-orm/sqlite-core'
-import { bots } from './bots'
-import { numeric } from './types'
+import { bots } from './bots.schema'
+import { numeric } from './types.schema'
 
 export const riskConfigs = sqliteTable('risk_configs', {
   id: int('id').primaryKey({ autoIncrement: true }),

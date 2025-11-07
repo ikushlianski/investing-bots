@@ -1,9 +1,9 @@
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { bots } from './bots'
-import { instruments } from './instruments'
-import { setups } from './setups'
-import { strategyVersions } from './strategy'
-import { numeric } from './types'
+import { bots } from './bots.schema'
+import { instruments } from './instruments.schema'
+import { setups } from './setups.schema'
+import { strategyVersions } from './strategy.schema'
+import { numeric } from './types.schema'
 
 export const positions = sqliteTable('positions', {
   id: int('id').primaryKey({ autoIncrement: true }),

@@ -1,13 +1,17 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { setups } from './setups'
-import { numeric } from './types'
+import { setups } from './setups.schema'
+import { strategyMetrics } from './strategy-metrics.schema'
+import { numeric } from './types.schema'
 
 export const setupSignals = sqliteTable('setup_signals', {
   id: int('id').primaryKey({ autoIncrement: true }),
   setupId: int('setup_id')
     .notNull()
     .references(() => setups.id, { onDelete: 'cascade' }),
+  metricId: int('metric_id').references(() => strategyMetrics.id, {
+    onDelete: 'set null',
+  }),
   signalType: text('signal_type').notNull(),
   signalRole: text('signal_role').notNull(),
   detectedOnTimeframe: text('detected_on_timeframe').notNull(),

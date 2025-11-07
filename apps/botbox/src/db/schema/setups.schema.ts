@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { instruments } from './instruments'
-import { marketRegimes } from './market-regimes'
-import { strategyVersions } from './strategy'
-import { numeric } from './types'
+import { instruments } from './instruments.schema'
+import { marketRegimes } from './market-regimes.schema'
+import { strategyVersions } from './strategy.schema'
+import { numeric } from './types.schema'
 
 export const setups = sqliteTable('setups', {
   id: int('id').primaryKey({ autoIncrement: true }),

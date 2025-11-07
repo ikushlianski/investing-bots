@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core'
-import { bots } from './bots'
-import { strategyVersions } from './strategy'
-import { numeric } from './types'
+import { bots } from './bots.schema'
+import { strategyVersions } from './strategy.schema'
+import { numeric } from './types.schema'
 
 /**
  * Many-to-many relationship between bots and strategies.

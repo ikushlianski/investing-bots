@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { users } from './users'
-import { exchanges } from './exchanges'
-import { numeric } from './types'
+import { users } from './users.schema'
+import { exchanges } from './exchanges.schema'
+import { numeric } from './types.schema'
 
 export const portfolios = sqliteTable('portfolios', {
   id: int('id').primaryKey({ autoIncrement: true }),

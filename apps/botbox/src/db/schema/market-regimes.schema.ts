@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { instruments } from './instruments'
-import { numeric } from './types'
+import { instruments } from './instruments.schema'
+import { numeric } from './types.schema'
 
 export const marketRegimes = sqliteTable('market_regimes', {
   id: int('id').primaryKey({ autoIncrement: true }),

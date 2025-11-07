@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { int, sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core'
-import { strategyVersions } from './strategy'
+import { strategyVersions } from './strategy.schema'
 
 export const strategySetupTypes = sqliteTable(
   'strategy_setup_types',
