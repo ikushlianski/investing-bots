@@ -1,32 +1,89 @@
-import { isNewCandleClosed, getMinutesSince } from './candle-detection'
-import { checkSignalStillValid } from './signal-revalidation'
-import { checkContextRegimeStillValid, type MarketRegime } from './context-validation'
-import { evaluateSetupState, shouldInvalidateSetup } from './setup-lifecycle'
-import type { Timeframe, SetupState, MarketData, SignalType } from './types'
+import { isNewCandleClosed, getMinutesSince } from "./candle-detection";
+import { checkSignalStillValid } from "./signal-revalidation";
+import { checkContextRegimeStillValid } from "./context-validation";
+import { evaluateSetupState, shouldInvalidateSetup } from "./setup-lifecycle";
+import type { MarketData, SignalType } from "./types";
+import { Timeframe } from "./candles/enums";
+import { SetupState, SetupDirection } from "./setups/enums";
+import type { Timeframe as TimeframeType } from "./types";
+import {
+  evaluateRiskChecks,
+  DEFAULT_RISK_CHECK_CONFIG,
+} from "./risk/risk-checks";
+import {
+  buildOrderPlan,
+  DEFAULT_ORDER_PLAN_CONFIG,
+} from "./execution/order-plan";
+import {
+  TradingStateMachine,
+  TradingState,
+} from "./state-machine/trading-state-machine";
+import { TradingEventType, type TradingEvent } from "./events";
+import { MarketRegimeType } from "./regimes/enums";
+import { getCurrentRegime } from "./regimes/queries";
+import {
+  getActiveSetupsForInvalidation,
+  getActiveSetupsForEvaluation,
+  invalidateSetup,
+  activateSetup,
+  expireOldSetups as expireOldSetupsQuery,
+  countActiveSetups,
+} from "./setups/queries";
+import {
+  getSignalsForRevalidation,
+  invalidateSignal,
+  updateSignalRecheckTimestamp,
+  countValidSignals,
+} from "./signals/queries";
+import { collectRiskContext } from "./risk/queries";
+import { resolveStopLoss, buildTakeProfitLevels } from "./setups/utils";
+import type { DrizzleDatabase } from "./database";
 
 export interface Database {
-  query: <T>(sql: string, params?: unknown[]) => Promise<T[]>
-  execute: (sql: string, params?: unknown[]) => Promise<void>
+  query: <T>(sql: string, params?: unknown[]) => Promise<T[]>;
+  execute: (sql: string, params?: unknown[]) => Promise<void>;
+  select: DrizzleDatabase["select"];
+  update: DrizzleDatabase["update"];
+}
+
+export interface DatabaseTables {
+  setups: unknown;
+  setupSignals: unknown;
+  marketRegimes: unknown;
+  instruments: unknown;
+  positions: unknown;
+  trades: unknown;
 }
 
 export interface Exchange {
-  getCurrentPrice: (instrumentId: number) => Promise<number>
-  fetchLatestCandle: (instrumentId: number, timeframe: Timeframe) => Promise<unknown>
-  getAccountBalance: () => Promise<number>
-  placeOrder: (order: unknown) => Promise<unknown>
-  placeStopLoss: (instrumentId: number, stopLoss: number, quantity: number) => Promise<void>
-  placeTakeProfit: (instrumentId: number, takeProfit: number, quantity: number) => Promise<void>
-  updateStopLoss: (instrumentId: number, newStop: number) => Promise<void>
-  closePosition: (instrumentId: number) => Promise<void>
+  getCurrentPrice: (instrumentId: number) => Promise<number>;
+  fetchLatestCandle: (
+    instrumentId: number,
+    timeframe: TimeframeType
+  ) => Promise<unknown>;
+  getAccountBalance: () => Promise<number>;
+  placeOrder: (order: unknown) => Promise<unknown>;
+  placeStopLoss: (
+    instrumentId: number,
+    stopLoss: number,
+    quantity: number
+  ) => Promise<void>;
+  placeTakeProfit: (
+    instrumentId: number,
+    takeProfit: number,
+    quantity: number
+  ) => Promise<void>;
+  updateStopLoss: (instrumentId: number, newStop: number) => Promise<void>;
+  closePosition: (instrumentId: number) => Promise<void>;
 }
 
 export interface TradingLoopConfig {
-  enableTrading: boolean
-  maxConcurrentSetups: number
-  maxConcurrentTrades: number
-  riskPerTradePercent: number
-  pauseOnVolatilitySpike: boolean
-  volatilitySpikeMultiplier: number
+  enableTrading: boolean;
+  maxConcurrentSetups: number;
+  maxConcurrentTrades: number;
+  riskPerTradePercent: number;
+  pauseOnVolatilitySpike: boolean;
+  volatilitySpikeMultiplier: number;
 }
 
 export const DEFAULT_LOOP_CONFIG: TradingLoopConfig = {
@@ -36,108 +93,161 @@ export const DEFAULT_LOOP_CONFIG: TradingLoopConfig = {
   riskPerTradePercent: 0.01,
   pauseOnVolatilitySpike: true,
   volatilitySpikeMultiplier: 2.0,
-}
+};
+
+const tradingStateMachine = new TradingStateMachine();
 
 export async function runTradingLoop(
   db: Database,
+  tables: DatabaseTables,
   exchange: Exchange,
   config: TradingLoopConfig = DEFAULT_LOOP_CONFIG
 ): Promise<void> {
-  const currentTime = new Date()
+  const currentTime = new Date();
 
-  if (isNewCandleClosed('1h', currentTime)) {
-    await processNewCandle(db, exchange, '1h', currentTime)
+  if (isNewCandleClosed(Timeframe.ONE_HOUR, currentTime)) {
+    await processNewCandle(db, exchange, Timeframe.ONE_HOUR, currentTime);
   }
 
-  if (isNewCandleClosed('4h', currentTime)) {
-    await processNewCandle(db, exchange, '4h', currentTime)
+  if (isNewCandleClosed(Timeframe.FOUR_HOURS, currentTime)) {
+    await processNewCandle(db, exchange, Timeframe.FOUR_HOURS, currentTime);
   }
 
-  if (isNewCandleClosed('1d', currentTime)) {
-    await processNewCandle(db, exchange, '1d', currentTime)
+  if (isNewCandleClosed(Timeframe.ONE_DAY, currentTime)) {
+    await processNewCandle(db, exchange, Timeframe.ONE_DAY, currentTime);
   }
 
-  await updateRegimesIfNeeded(db)
+  await updateRegimesIfNeeded(db);
 
   if (await shouldPauseTrading(db, config)) {
-    console.log('[TRADING LOOP] Trading paused due to safety check')
+    console.log("[TRADING LOOP] Trading paused due to safety check");
 
-    return
+    const pauseEvent: TradingEvent = {
+      type: TradingEventType.SAFETY_PAUSE,
+      metadata: {
+        id: `pause-${currentTime.getTime()}`,
+        timestamp: currentTime.toISOString(),
+        source: "trading-loop",
+      },
+      payload: {
+        reason: "Safety check triggered",
+      },
+    };
+
+    const pauseResult = tradingStateMachine.handleEvent(pauseEvent, {
+      now: currentTime,
+      consecutiveLosses: 0,
+      allowResume: false,
+    });
+
+    logTodos(pauseResult.todos);
+
+    return;
   }
 
-  await expireOldSetups(db, currentTime)
-  await checkSetupInvalidations(db, exchange)
-  await revalidateSignals(db, exchange)
-  await evaluateActiveSetups(db, exchange, config)
+  if (tradingStateMachine.getState() === TradingState.PAUSED) {
+    const resumeEvent: TradingEvent = {
+      type: TradingEventType.RESUME_REQUESTED,
+      metadata: {
+        id: `resume-${currentTime.getTime()}`,
+        timestamp: currentTime.toISOString(),
+        source: "trading-loop",
+      },
+      payload: {
+        reason: "Safety check cleared",
+      },
+    };
 
-  if (await canCreateNewSetups(db, config)) {
-    await scanForNewSetups(db, exchange)
+    const resumeResult = tradingStateMachine.handleEvent(resumeEvent, {
+      now: currentTime,
+      consecutiveLosses: 0,
+      allowResume: true,
+    });
+
+    logTodos(resumeResult.todos);
   }
 
-  await manageOpenPositions(db, exchange)
+  if (tradingStateMachine.getState() === TradingState.PAUSED) {
+    return;
+  }
+
+  await expireOldSetups(db, tables, currentTime);
+  await checkSetupInvalidations(db, tables, exchange);
+  await revalidateSignals(db, tables, exchange);
+  await evaluateActiveSetups(db, tables, exchange, config);
+
+  if (await canCreateNewSetups(db, tables, config)) {
+    await scanForNewSetups(db, exchange);
+  }
+
+  await manageOpenPositions(db, exchange);
 }
 
 async function processNewCandle(
   db: Database,
   exchange: Exchange,
-  timeframe: Timeframe,
+  timeframe: TimeframeType,
   currentTime: Date
 ): Promise<void> {
-  console.log(`[TRADING LOOP] New ${timeframe} candle closed at ${currentTime.toISOString()}`)
+  console.log(
+    `[TRADING LOOP] New ${timeframe} candle closed at ${currentTime.toISOString()}`
+  );
 
-  const instruments = await getActiveInstruments(db)
+  const instruments = await getActiveInstruments(db);
 
   for (const instrument of instruments) {
-    const candle = await exchange.fetchLatestCandle(instrument.id, timeframe)
+    const candle = await exchange.fetchLatestCandle(instrument.id, timeframe);
 
-    await storeCandle(db, instrument.id, timeframe, candle)
-    await updateIndicators(db, instrument.id, timeframe)
-    await updatePriceLevels(db, instrument.id, timeframe)
-    await updateMarketRegime(db, instrument.id, timeframe)
-    await checkAndFireSignals(db, instrument.id, timeframe)
-    await incrementSetupCandleCounts(db, instrument.id, timeframe, currentTime)
+    await storeCandle(db, instrument.id, timeframe, candle);
+    await updateIndicators(db, instrument.id, timeframe);
+    await updatePriceLevels(db, instrument.id, timeframe);
+    await updateMarketRegime(db, instrument.id, timeframe);
+    await checkAndFireSignals(db, instrument.id, timeframe);
+    await incrementSetupCandleCounts(db, instrument.id, timeframe, currentTime);
   }
 }
 
-function getActiveInstruments(_db: Database): Promise<{ id: number; symbol: string }[]> {
-  return Promise.resolve([])
+function getActiveInstruments(
+  _db: Database
+): Promise<{ id: number; symbol: string }[]> {
+  return Promise.resolve([]);
 }
 
 async function storeCandle(
   _db: Database,
   _instrumentId: number,
-  _timeframe: Timeframe,
+  _timeframe: TimeframeType,
   _candle: unknown
 ): Promise<void> {}
 
 async function updateIndicators(
   _db: Database,
   _instrumentId: number,
-  _timeframe: Timeframe
+  _timeframe: TimeframeType
 ): Promise<void> {}
 
 async function updatePriceLevels(
   _db: Database,
   _instrumentId: number,
-  _timeframe: Timeframe
+  _timeframe: TimeframeType
 ): Promise<void> {}
 
 async function updateMarketRegime(
   _db: Database,
   _instrumentId: number,
-  _timeframe: Timeframe
+  _timeframe: TimeframeType
 ): Promise<void> {}
 
 async function checkAndFireSignals(
   _db: Database,
   _instrumentId: number,
-  _timeframe: Timeframe
+  _timeframe: TimeframeType
 ): Promise<void> {}
 
 async function incrementSetupCandleCounts(
   _db: Database,
   _instrumentId: number,
-  _timeframe: Timeframe,
+  _timeframe: TimeframeType,
   _currentTime: Date
 ): Promise<void> {}
 
@@ -148,66 +258,55 @@ async function shouldPauseTrading(
   config: TradingLoopConfig
 ): Promise<boolean> {
   if (!config.enableTrading) {
-    return true
+    return true;
   }
 
   if (config.pauseOnVolatilitySpike) {
-    const currentVolatility = await getCurrentVolatility(db)
-    const normalVolatility = await getNormalVolatility(db)
+    const currentVolatility = await getCurrentVolatility(db);
+    const normalVolatility = await getNormalVolatility(db);
 
-    if (currentVolatility > normalVolatility * config.volatilitySpikeMultiplier) {
+    if (
+      currentVolatility >
+      normalVolatility * config.volatilitySpikeMultiplier
+    ) {
       console.log(
-        `[SAFETY] Pausing trading due to volatility spike: ${(currentVolatility / normalVolatility).toFixed(2)}x normal`
-      )
+        `[SAFETY] Pausing trading due to volatility spike: ${(
+          currentVolatility / normalVolatility
+        ).toFixed(2)}x normal`
+      );
 
-      return true
+      return true;
     }
   }
 
-  return false
+  return false;
 }
 
 function getCurrentVolatility(_db: Database): Promise<number> {
-  return Promise.resolve(0.1)
+  return Promise.resolve(0.1);
 }
 
 function getNormalVolatility(_db: Database): Promise<number> {
-  return Promise.resolve(0.1)
+  return Promise.resolve(0.1);
 }
 
-async function expireOldSetups(db: Database, currentTime: Date): Promise<void> {
-  await db.execute(
-    `
-    UPDATE setups
-    SET state = 'EXPIRED', invalidated_at = ?
-    WHERE state IN ('FORMING', 'ACTIVE')
-      AND expires_at < ?
-  `,
-    [currentTime.toISOString(), currentTime.toISOString()]
-  )
+async function expireOldSetups(
+  db: Database,
+  tables: DatabaseTables,
+  currentTime: Date
+): Promise<void> {
+  await expireOldSetupsQuery(db, tables.setups, currentTime);
 }
 
-async function checkSetupInvalidations(db: Database, exchange: Exchange): Promise<void> {
-  const activeSetups = await db.query<{
-    id: number
-    instrumentId: number
-    direction: 'LONG' | 'SHORT'
-    entryZoneLow: number
-    entryZoneHigh: number
-    activatedAt: string | null
-    contextRegimeId: number | null
-    contextTimeframe: string | null
-  }>(
-    `
-    SELECT id, instrument_id, direction, entry_zone_low, entry_zone_high,
-           activated_at, context_regime_id, context_timeframe
-    FROM setups
-    WHERE state IN ('FORMING', 'ACTIVE')
-  `
-  )
+async function checkSetupInvalidations(
+  db: Database,
+  tables: DatabaseTables,
+  exchange: Exchange
+): Promise<void> {
+  const activeSetups = await getActiveSetupsForInvalidation(db, tables.setups);
 
   for (const setup of activeSetups) {
-    const currentPrice = await exchange.getCurrentPrice(setup.instrumentId)
+    const currentPrice = await exchange.getCurrentPrice(setup.instrumentId);
 
     const invalidation = shouldInvalidateSetup(
       currentPrice,
@@ -215,85 +314,60 @@ async function checkSetupInvalidations(db: Database, exchange: Exchange): Promis
       setup.entryZoneHigh,
       setup.direction,
       setup.activatedAt ? getMinutesSince(setup.activatedAt) : 0
-    )
+    );
 
     if (invalidation.shouldInvalidate) {
-      await invalidateSetup(db, setup.id, invalidation.reason!)
-      continue
+      await invalidateSetup(db, tables.setups, setup.id, invalidation.reason!);
+      continue;
     }
 
     if (setup.contextRegimeId && setup.contextTimeframe) {
       const currentContextRegime = await getCurrentRegime(
         db,
+        tables.marketRegimes as {
+          id: unknown;
+          instrumentId: unknown;
+          timeframe: unknown;
+          stillActive: unknown;
+          regimeType: unknown;
+          trendStrength: unknown;
+          priceVsMa: unknown;
+          volatility: unknown;
+          startedAt: unknown;
+        },
         setup.instrumentId,
         setup.contextTimeframe as Timeframe
-      )
+      );
 
       if (currentContextRegime) {
-        const contextCheck = checkContextRegimeStillValid(setup.contextRegimeId, currentContextRegime)
+        const contextCheck = checkContextRegimeStillValid(
+          setup.contextRegimeId,
+          currentContextRegime
+        );
 
         if (!contextCheck.valid) {
-          await invalidateSetup(db, setup.id, 'CONTEXT_REGIME_CHANGED')
+          await invalidateSetup(
+            db,
+            tables.setups,
+            setup.id,
+            "CONTEXT_REGIME_CHANGED"
+          );
         }
       }
     }
   }
 }
 
-async function invalidateSetup(db: Database, setupId: number, reason: string): Promise<void> {
-  await db.execute(
-    `
-    UPDATE setups
-    SET state = 'INVALIDATED',
-        invalidated_at = ?,
-        invalidation_reason = ?
-    WHERE id = ?
-  `,
-    [new Date().toISOString(), reason, setupId]
-  )
-
-  console.log(`[SETUP] Invalidated setup ${setupId}: ${reason}`)
-}
-
-async function getCurrentRegime(
+async function revalidateSignals(
   db: Database,
-  instrumentId: number,
-  timeframe: Timeframe
-): Promise<MarketRegime | null> {
-  const regimes = await db.query<MarketRegime>(
-    `
-    SELECT id, regime_type, trend_strength, price_vs_ma, volatility, still_active
-    FROM market_regimes
-    WHERE instrument_id = ? AND timeframe = ? AND still_active = 1
-    ORDER BY started_at DESC
-    LIMIT 1
-  `,
-    [instrumentId, timeframe]
-  )
-
-  return regimes[0] ?? null
-}
-
-async function revalidateSignals(db: Database, exchange: Exchange): Promise<void> {
-  const signalsToRecheck = await db.query<{
-    id: number
-    setupId: number
-    signalType: string
-    firedAt: string
-    value: number | null
-    detectedOnTimeframe: string
-    instrumentId: number
-  }>(
-    `
-    SELECT s.id, s.setup_id, s.signal_type, s.fired_at, s.value, s.detected_on_timeframe,
-           st.instrument_id
-    FROM setup_signals s
-    JOIN setups st ON s.setup_id = st.id
-    WHERE s.still_valid = 1
-      AND s.requires_recheck = 1
-      AND st.state IN ('FORMING', 'ACTIVE')
-  `
-  )
+  tables: DatabaseTables,
+  exchange: Exchange
+): Promise<void> {
+  const signalsToRecheck = await getSignalsForRevalidation(
+    db,
+    tables.setupSignals,
+    tables.setups
+  );
 
   for (const signal of signalsToRecheck) {
     const marketData = await getMarketData(
@@ -301,35 +375,22 @@ async function revalidateSignals(db: Database, exchange: Exchange): Promise<void
       exchange,
       signal.instrumentId,
       signal.detectedOnTimeframe as Timeframe
-    )
+    );
     const revalidation = checkSignalStillValid(
       signal.signalType as SignalType,
       signal.firedAt,
-      signal.value,
+      signal.value ? parseFloat(signal.value) : null,
       marketData
-    )
+    );
 
     if (!revalidation.isValid) {
-      await db.execute(
-        `
-        UPDATE setup_signals
-        SET still_valid = 0, invalidated_at = ?
-        WHERE id = ?
-      `,
-        [new Date().toISOString(), signal.id]
-      )
-
-      console.log(`[SIGNAL] Invalidated signal ${signal.id}: ${revalidation.reason}`)
+      await invalidateSignal(db, tables.setupSignals, signal.id);
+      console.log(
+        `[SIGNAL] Invalidated signal ${signal.id}: ${revalidation.reason}`
+      );
     }
 
-    await db.execute(
-      `
-      UPDATE setup_signals
-      SET last_rechecked_at = ?
-      WHERE id = ?
-    `,
-      [new Date().toISOString(), signal.id]
-    )
+    await updateSignalRecheckTimestamp(db, tables.setupSignals, signal.id);
   }
 }
 
@@ -339,7 +400,7 @@ async function getMarketData(
   instrumentId: number,
   _timeframe: Timeframe
 ): Promise<MarketData> {
-  const price = await exchange.getCurrentPrice(instrumentId)
+  const price = await exchange.getCurrentPrice(instrumentId);
 
   return {
     price,
@@ -353,39 +414,25 @@ async function getMarketData(
       closeTime: new Date().toISOString(),
     },
     indicators: {},
-  }
+  };
 }
 
 async function evaluateActiveSetups(
   db: Database,
+  tables: DatabaseTables,
   exchange: Exchange,
   config: TradingLoopConfig
 ): Promise<void> {
-  const activeSetups = await db.query<{
-    id: number
-    instrumentId: number
-    state: string
-    createdAt: string
-    activatedAt: string | null
-    entryZoneLow: number
-    entryZoneHigh: number
-    requiredConfirmations: number
-    formingDurationMinutes: number
-    direction: 'LONG' | 'SHORT'
-  }>(
-    `
-    SELECT id, instrument_id, state, created_at, activated_at,
-           entry_zone_low, entry_zone_high, required_confirmations,
-           forming_duration_minutes, direction
-    FROM setups
-    WHERE state IN ('FORMING', 'ACTIVE')
-  `
-  )
+  const activeSetups = await getActiveSetupsForEvaluation(db, tables.setups);
 
   for (const setup of activeSetups) {
-    const currentPrice = await exchange.getCurrentPrice(setup.instrumentId)
-    const validSignals = await getValidSignalsCount(db, setup.id)
-    const minutesSinceCreation = getMinutesSince(setup.createdAt)
+    const currentPrice = await exchange.getCurrentPrice(setup.instrumentId);
+    const validSignals = await countValidSignals(
+      db,
+      tables.setupSignals,
+      setup.id
+    );
+    const minutesSinceCreation = getMinutesSince(setup.createdAt);
 
     const newState = evaluateSetupState(
       setup.state as SetupState,
@@ -396,68 +443,226 @@ async function evaluateActiveSetups(
       validSignals,
       minutesSinceCreation,
       setup.formingDurationMinutes
-    )
+    );
 
-    if (newState === 'ACTIVE' && setup.state === 'FORMING') {
-      await db.execute(
-        `
-        UPDATE setups
-        SET state = 'ACTIVE', activated_at = ?
-        WHERE id = ?
-      `,
-        [new Date().toISOString(), setup.id]
-      )
-
-      console.log(`[SETUP] Setup ${setup.id} activated`)
+    if (newState === SetupState.ACTIVE && setup.state === SetupState.FORMING) {
+      await activateSetup(db, tables.setups, setup.id);
+      console.log(`[SETUP] Setup ${setup.id} activated`);
     }
 
-    if (newState === 'TRIGGERED' && setup.state === 'ACTIVE') {
-      await triggerTrade(db, exchange, setup, config)
+    if (
+      newState === SetupState.TRIGGERED &&
+      setup.state === SetupState.ACTIVE
+    ) {
+      await triggerTrade(db, tables, exchange, setup, config);
     }
   }
 }
 
-async function getValidSignalsCount(db: Database, setupId: number): Promise<number> {
-  const result = await db.query<{ count: number }>(
-    `
-    SELECT COUNT(*) as count
-    FROM setup_signals
-    WHERE setup_id = ? AND still_valid = 1
-  `,
-    [setupId]
-  )
+async function triggerTrade(
+  db: Database,
+  tables: DatabaseTables,
+  exchange: Exchange,
+  setup: {
+    id: number;
+    instrumentId: number;
+    direction: "LONG" | "SHORT";
+    entryZoneLow: number;
+    entryZoneHigh: number;
+    stopLoss: number | null;
+    takeProfit1: number | null;
+    takeProfit2: number | null;
+    entryTimeframe: string;
+    contextTimeframe: string | null;
+  },
+  config: TradingLoopConfig
+): Promise<void> {
+  const direction =
+    setup.direction === "LONG" ? SetupDirection.LONG : SetupDirection.SHORT;
+  const entryTimeframe =
+    (setup.entryTimeframe as Timeframe) ?? Timeframe.ONE_HOUR;
+  const midPrice = (setup.entryZoneLow + setup.entryZoneHigh) / 2;
+  const localTodos: { id: string; description: string }[] = [];
+  const currentState = tradingStateMachine.getState();
 
-  return result[0]?.count ?? 0
+  if (
+    currentState === TradingState.PAUSED ||
+    currentState === TradingState.COOLDOWN
+  ) {
+    console.log(
+      `[TRADE] Skipping setup ${setup.id} due to state ${currentState}`
+    );
+
+    return;
+  }
+
+  const stopResolution = resolveStopLoss(setup, direction, midPrice);
+  const stopLoss = stopResolution.value;
+
+  if (stopResolution.fallbackUsed) {
+    localTodos.push({
+      id: "TODO_SETUP_STOP",
+      description:
+        "Persist stop loss before promoting setup to triggerable state",
+    });
+  }
+
+  const takeProfitResolution = buildTakeProfitLevels(
+    setup,
+    direction,
+    midPrice
+  );
+  const takeProfitLevels = takeProfitResolution.levels;
+
+  localTodos.push(...takeProfitResolution.todos);
+  const stopDistancePercent =
+    midPrice === 0 ? 0 : Math.abs(midPrice - stopLoss) / midPrice;
+  const requestedPositionSizePercent =
+    stopDistancePercent === 0
+      ? 0
+      : config.riskPerTradePercent / stopDistancePercent;
+
+  const accountBalance = await exchange.getAccountBalance();
+  const riskContext = await collectRiskContext(
+    db,
+    tables.positions,
+    tables.trades,
+    setup.instrumentId
+  );
+  const regimeRecord =
+    setup.contextTimeframe !== null
+      ? await getCurrentRegime(
+          db,
+          tables.marketRegimes as {
+            id: unknown;
+            instrumentId: unknown;
+            timeframe: unknown;
+            stillActive: unknown;
+            regimeType: unknown;
+            trendStrength: unknown;
+            priceVsMa: unknown;
+            volatility: unknown;
+            startedAt: unknown;
+          },
+          setup.instrumentId,
+          setup.contextTimeframe as Timeframe
+        )
+      : null;
+
+  const riskResult = evaluateRiskChecks(
+    {
+      accountBalance,
+      requestedRiskPercent: config.riskPerTradePercent,
+      requestedPositionSizePercent,
+      entryPrice: midPrice,
+      stopPrice: stopLoss,
+      timeframe: entryTimeframe,
+      direction,
+      regime: regimeRecord?.regimeType ?? MarketRegimeType.NEUTRAL,
+      dailyLossPercent: riskContext.dailyLossPercent,
+      openPositions: riskContext.openPositions,
+      correlatedExposureCount: riskContext.correlatedExposureCount,
+      openRiskPercent: riskContext.openRiskPercent,
+    },
+    DEFAULT_RISK_CHECK_CONFIG
+  );
+
+  if (!riskResult.isAllowed) {
+    riskResult.failures.forEach((failure) => {
+      console.log(`[RISK] ${failure.checkId}: ${failure.reason}`);
+    });
+
+    logTodos([...localTodos, ...riskContext.todos, ...riskResult.todos]);
+
+    return;
+  }
+
+  const orderPlan = buildOrderPlan(
+    {
+      midPrice,
+      stopLoss,
+      takeProfitLevels,
+      direction,
+      quantity: riskResult.positionSizeUnits,
+    },
+    DEFAULT_ORDER_PLAN_CONFIG
+  );
+
+  const triggerEvent: TradingEvent = {
+    type: TradingEventType.TRADE_TRIGGERED,
+    metadata: {
+      id: `trigger-${setup.id}-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      source: "trading-loop",
+    },
+    payload: {
+      setupId: setup.id,
+      status: "TRIGGERED",
+    },
+  };
+
+  const stateResult = tradingStateMachine.handleEvent(triggerEvent, {
+    now: new Date(),
+    consecutiveLosses: 0,
+    allowResume: true,
+  });
+
+  console.log(
+    `[TRADE] Prepared order plan for setup ${
+      setup.id
+    } entry=${orderPlan.entry.price.toFixed(
+      5
+    )} stop=${orderPlan.stop.price.toFixed(
+      5
+    )} quantity=${orderPlan.entry.quantity.toFixed(4)}`
+  );
+
+  orderPlan.targets.forEach((target, index) => {
+    console.log(
+      `[TRADE] target${index + 1} price=${target.price.toFixed(
+        5
+      )} quantity=${target.quantity.toFixed(4)}`
+    );
+  });
+
+  logTodos([
+    ...localTodos,
+    ...riskContext.todos,
+    ...riskResult.todos,
+    ...orderPlan.todos,
+    ...stateResult.todos,
+  ]);
 }
 
-function triggerTrade(
-  _db: Database,
-  _exchange: Exchange,
-  setup: { id: number; instrumentId: number; direction: 'LONG' | 'SHORT' },
-  _config: TradingLoopConfig
-): Promise<void> {
-  console.log(`[TRADE] Triggering trade for setup ${setup.id}`)
+function logTodos(todos: { id: string; description: string }[]): void {
+  const seen = new Set<string>();
 
-  return Promise.resolve()
+  todos.forEach((todo) => {
+    if (seen.has(todo.id)) {
+      return;
+    }
+
+    seen.add(todo.id);
+    console.log(`[TODO] ${todo.id}: ${todo.description}`);
+  });
 }
 
 async function canCreateNewSetups(
   db: Database,
+  tables: DatabaseTables,
   config: TradingLoopConfig
 ): Promise<boolean> {
-  const activeSetupsCount = await db.query<{ count: number }>(
-    `
-    SELECT COUNT(*) as count
-    FROM setups
-    WHERE state IN ('FORMING', 'ACTIVE')
-  `
-  )
+  const count = await countActiveSetups(db, tables.setups);
 
-  const count = activeSetupsCount[0]?.count ?? 0
-
-  return count < config.maxConcurrentSetups
+  return count < config.maxConcurrentSetups;
 }
 
-async function scanForNewSetups(_db: Database, _exchange: Exchange): Promise<void> {}
+async function scanForNewSetups(
+  _db: Database,
+  _exchange: Exchange
+): Promise<void> {}
 
-async function manageOpenPositions(_db: Database, _exchange: Exchange): Promise<void> {}
+async function manageOpenPositions(
+  _db: Database,
+  _exchange: Exchange
+): Promise<void> {}

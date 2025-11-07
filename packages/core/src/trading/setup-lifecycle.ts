@@ -1,4 +1,6 @@
-import type { SetupConfig, SetupState, Timeframe } from './types'
+import type { SetupConfig, Timeframe } from './types'
+import { SetupType, SetupDirection, SetupState } from './setups/enums'
+import { Timeframe as TimeframeEnum } from './candles/enums'
 
 export function createResistanceRejectionSetup(
   symbol: string,
@@ -10,48 +12,48 @@ export function createResistanceRejectionSetup(
     symbol,
     entryTimeframe,
     contextTimeframe,
-    setupType: 'RESISTANCE_REJECTION',
-    direction: 'SHORT',
+    setupType: SetupType.RESISTANCE_REJECTION,
+    direction: SetupDirection.SHORT,
     entryZoneLow: resistanceLevel * 0.998,
     entryZoneHigh: resistanceLevel * 1.002,
     stopLoss: resistanceLevel * 1.04,
     takeProfit1: resistanceLevel * 0.93,
     takeProfit2: resistanceLevel * 0.87,
     requiredConfirmations: 3,
-    ttl: getTTLForSetup('RESISTANCE_REJECTION', entryTimeframe),
+    ttl: getTTLForSetup(SetupType.RESISTANCE_REJECTION, entryTimeframe),
   }
 }
 
 export function getTTLForSetup(
-  setupType: string,
+  setupType: SetupType,
   timeframe: Timeframe
 ): { formingDurationMinutes: number; activeDurationMinutes: number; totalTTLMinutes: number } {
-  if (timeframe === '1h') {
+  if (timeframe === TimeframeEnum.ONE_HOUR) {
     switch (setupType) {
-      case 'RESISTANCE_REJECTION':
+      case SetupType.RESISTANCE_REJECTION:
         return { formingDurationMinutes: 180, activeDurationMinutes: 420, totalTTLMinutes: 600 }
-      case 'SUPPORT_BREAKDOWN':
+      case SetupType.SUPPORT_BREAKDOWN:
         return { formingDurationMinutes: 90, activeDurationMinutes: 300, totalTTLMinutes: 390 }
-      case 'RETEST_SHORT':
+      case SetupType.RETEST_SHORT:
         return { formingDurationMinutes: 45, activeDurationMinutes: 180, totalTTLMinutes: 225 }
-      case 'TREND_CONTINUATION':
+      case SetupType.TREND_CONTINUATION:
         return { formingDurationMinutes: 300, activeDurationMinutes: 900, totalTTLMinutes: 1200 }
-      case 'MEAN_REVERSION':
+      case SetupType.MEAN_REVERSION:
         return { formingDurationMinutes: 150, activeDurationMinutes: 600, totalTTLMinutes: 750 }
       default:
         return { formingDurationMinutes: 180, activeDurationMinutes: 420, totalTTLMinutes: 600 }
     }
   } else {
     switch (setupType) {
-      case 'RESISTANCE_REJECTION':
+      case SetupType.RESISTANCE_REJECTION:
         return { formingDurationMinutes: 600, activeDurationMinutes: 1800, totalTTLMinutes: 2400 }
-      case 'SUPPORT_BREAKDOWN':
+      case SetupType.SUPPORT_BREAKDOWN:
         return { formingDurationMinutes: 300, activeDurationMinutes: 1200, totalTTLMinutes: 1500 }
-      case 'RETEST_SHORT':
+      case SetupType.RETEST_SHORT:
         return { formingDurationMinutes: 150, activeDurationMinutes: 900, totalTTLMinutes: 1050 }
-      case 'TREND_CONTINUATION':
+      case SetupType.TREND_CONTINUATION:
         return { formingDurationMinutes: 1200, activeDurationMinutes: 3600, totalTTLMinutes: 4800 }
-      case 'MEAN_REVERSION':
+      case SetupType.MEAN_REVERSION:
         return { formingDurationMinutes: 600, activeDurationMinutes: 2400, totalTTLMinutes: 3000 }
       default:
         return { formingDurationMinutes: 600, activeDurationMinutes: 1800, totalTTLMinutes: 2400 }
@@ -69,20 +71,20 @@ export function evaluateSetupState(
   minutesSinceCreation: number,
   formingDurationMinutes: number
 ): SetupState {
-  if (setupState === 'FORMING') {
+  if (setupState === SetupState.FORMING) {
     const inEntryZone = currentPrice >= entryZoneLow && currentPrice <= entryZoneHigh
     const formingTimeElapsed = minutesSinceCreation >= formingDurationMinutes
 
     if (inEntryZone && formingTimeElapsed && signalCount >= 2) {
-      return 'ACTIVE'
+      return SetupState.ACTIVE
     }
   }
 
-  if (setupState === 'ACTIVE') {
+  if (setupState === SetupState.ACTIVE) {
     const inEntryZone = currentPrice >= entryZoneLow && currentPrice <= entryZoneHigh
 
     if (inEntryZone && signalCount >= requiredConfirmations) {
-      return 'TRIGGERED'
+      return SetupState.TRIGGERED
     }
   }
 

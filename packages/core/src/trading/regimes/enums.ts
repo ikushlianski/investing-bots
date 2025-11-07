@@ -3,5 +3,6 @@ export enum MarketRegimeType {
   TRENDING_DOWN = "TRENDING_DOWN",
   RANGING = "RANGING",
   VOLATILE = "VOLATILE",
+  DEAD = "DEAD",
   NEUTRAL = "NEUTRAL",
 }

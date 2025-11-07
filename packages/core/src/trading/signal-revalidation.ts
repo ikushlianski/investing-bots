@@ -1,4 +1,5 @@
-import type { SignalType, Candle, Indicators, MarketData } from './types'
+import type { Candle, Indicators, MarketData } from './types'
+import { SignalType } from './signals/enums'
 
 export interface SignalRevalidationResult {
   isValid: boolean
@@ -12,31 +13,31 @@ export function checkSignalStillValid(
   marketData: MarketData
 ): SignalRevalidationResult {
   switch (signalType) {
-    case 'RSI_OVERBOUGHT':
+    case SignalType.RSI_OVERBOUGHT:
       return revalidateRSIOverbought(marketData.indicators)
 
-    case 'RSI_OVERSOLD':
+    case SignalType.RSI_OVERSOLD:
       return revalidateRSIOversold(marketData.indicators)
 
-    case 'VOLUME_SPIKE':
+    case SignalType.VOLUME_SPIKE:
       return revalidateVolumeSpike(marketData.candle, marketData.indicators)
 
-    case 'VOLUME_DECLINE':
+    case SignalType.VOLUME_DECLINE:
       return revalidateVolumeDecline(marketData.candle, marketData.indicators)
 
-    case 'REJECTION_WICK':
+    case SignalType.REJECTION_WICK:
       return revalidateRejectionWick(marketData.recentCandles ?? [marketData.candle])
 
-    case 'PRICE_LEVEL_BREAK':
+    case SignalType.PRICE_LEVEL_BREAK:
       return { isValid: true }
 
-    case 'MACD_DIVERGENCE':
+    case SignalType.MACD_DIVERGENCE:
       return revalidateMACDDivergence(firedAt, marketData.indicators)
 
-    case 'TREND_ALIGNMENT':
+    case SignalType.TREND_ALIGNMENT:
       return revalidateTrendAlignment(value, marketData.indicators)
 
-    case 'PRICE_IN_ENTRY_ZONE':
+    case SignalType.PRICE_IN_ENTRY_ZONE:
       return { isValid: true }
 
     default:

@@ -1,4 +1,5 @@
-import type { SignalType, Timeframe } from './types'
+import { SignalType } from './signals/enums'
+import { Timeframe } from './candles/enums'
 
 export interface SignalAgeLimits {
   maxAgeHours: number
@@ -9,46 +10,46 @@ export function getSignalAgeLimits(
   signalType: SignalType,
   timeframe: Timeframe
 ): SignalAgeLimits {
-  if (timeframe === '1h') {
+  if (timeframe === Timeframe.ONE_HOUR) {
     switch (signalType) {
-      case 'RSI_OVERBOUGHT':
-      case 'RSI_OVERSOLD':
+      case SignalType.RSI_OVERBOUGHT:
+      case SignalType.RSI_OVERSOLD:
         return { maxAgeHours: 2, recheckIntervalHours: 1 }
-      case 'VOLUME_SPIKE':
+      case SignalType.VOLUME_SPIKE:
         return { maxAgeHours: 1, recheckIntervalHours: 1 }
-      case 'VOLUME_DECLINE':
+      case SignalType.VOLUME_DECLINE:
         return { maxAgeHours: 2, recheckIntervalHours: 1 }
-      case 'REJECTION_WICK':
+      case SignalType.REJECTION_WICK:
         return { maxAgeHours: 1, recheckIntervalHours: 1 }
-      case 'PRICE_LEVEL_BREAK':
+      case SignalType.PRICE_LEVEL_BREAK:
         return { maxAgeHours: 0.25, recheckIntervalHours: 0.25 }
-      case 'MACD_DIVERGENCE':
+      case SignalType.MACD_DIVERGENCE:
         return { maxAgeHours: 4, recheckIntervalHours: 1 }
-      case 'TREND_ALIGNMENT':
+      case SignalType.TREND_ALIGNMENT:
         return { maxAgeHours: 12, recheckIntervalHours: 4 }
-      case 'PRICE_IN_ENTRY_ZONE':
+      case SignalType.PRICE_IN_ENTRY_ZONE:
         return { maxAgeHours: 2, recheckIntervalHours: 0.5 }
       default:
         return { maxAgeHours: 4, recheckIntervalHours: 1 }
     }
   } else {
     switch (signalType) {
-      case 'RSI_OVERBOUGHT':
-      case 'RSI_OVERSOLD':
+      case SignalType.RSI_OVERBOUGHT:
+      case SignalType.RSI_OVERSOLD:
         return { maxAgeHours: 8, recheckIntervalHours: 4 }
-      case 'VOLUME_SPIKE':
+      case SignalType.VOLUME_SPIKE:
         return { maxAgeHours: 4, recheckIntervalHours: 4 }
-      case 'VOLUME_DECLINE':
+      case SignalType.VOLUME_DECLINE:
         return { maxAgeHours: 8, recheckIntervalHours: 4 }
-      case 'REJECTION_WICK':
+      case SignalType.REJECTION_WICK:
         return { maxAgeHours: 4, recheckIntervalHours: 4 }
-      case 'PRICE_LEVEL_BREAK':
+      case SignalType.PRICE_LEVEL_BREAK:
         return { maxAgeHours: 1, recheckIntervalHours: 1 }
-      case 'MACD_DIVERGENCE':
+      case SignalType.MACD_DIVERGENCE:
         return { maxAgeHours: 16, recheckIntervalHours: 4 }
-      case 'TREND_ALIGNMENT':
+      case SignalType.TREND_ALIGNMENT:
         return { maxAgeHours: 48, recheckIntervalHours: 4 }
-      case 'PRICE_IN_ENTRY_ZONE':
+      case SignalType.PRICE_IN_ENTRY_ZONE:
         return { maxAgeHours: 8, recheckIntervalHours: 2 }
       default:
         return { maxAgeHours: 16, recheckIntervalHours: 4 }

@@ -1,4 +1,5 @@
-import type { SetupDirection, MarketRegimeType } from './types'
+import { SetupDirection } from './setups/enums'
+import { MarketRegimeType } from './regimes/enums'
 
 export interface MarketRegime {
   id: number
@@ -27,28 +28,42 @@ export function checkDailyTrendAlignment(
   setupDirection: SetupDirection,
   dailyRegime: MarketRegime
 ): ContextValidationResult {
-  if (setupDirection === 'SHORT') {
-    if (dailyRegime.regimeType === 'TRENDING_UP') {
+  if (dailyRegime.regimeType === MarketRegimeType.DEAD) {
+    return {
+      valid: false,
+      reason: 'Cannot trade in dead regime',
+    }
+  }
+
+  if (dailyRegime.regimeType === MarketRegimeType.VOLATILE) {
+    return {
+      valid: false,
+      reason: 'Cannot trade in volatile regime',
+    }
+  }
+
+  if (setupDirection === SetupDirection.SHORT) {
+    if (dailyRegime.regimeType === MarketRegimeType.TRENDING_UP) {
       return {
         valid: false,
         reason: 'Cannot short in strong daily uptrend',
       }
     }
 
-    if (dailyRegime.regimeType === 'TRENDING_DOWN' || dailyRegime.regimeType === 'RANGING') {
+    if (dailyRegime.regimeType === MarketRegimeType.TRENDING_DOWN || dailyRegime.regimeType === MarketRegimeType.RANGING) {
       return { valid: true }
     }
   }
 
-  if (setupDirection === 'LONG') {
-    if (dailyRegime.regimeType === 'TRENDING_DOWN') {
+  if (setupDirection === SetupDirection.LONG) {
+    if (dailyRegime.regimeType === MarketRegimeType.TRENDING_DOWN) {
       return {
         valid: false,
         reason: 'Cannot long in strong daily downtrend',
       }
     }
 
-    if (dailyRegime.regimeType === 'TRENDING_UP' || dailyRegime.regimeType === 'RANGING') {
+    if (dailyRegime.regimeType === MarketRegimeType.TRENDING_UP || dailyRegime.regimeType === MarketRegimeType.RANGING) {
       return { valid: true }
     }
   }
