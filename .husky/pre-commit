@@ -28,6 +28,8 @@ for PACKAGE_DIR in $WORKSPACE_PACKAGES; do
   fi
 done
 
+HAS_ERRORS=false
+
 for PACKAGE_DIR in $PROCESSED_PACKAGES; do
   echo ""
   echo "📦 Processing package: $PACKAGE_DIR"
@@ -50,18 +52,32 @@ for PACKAGE_DIR in $PROCESSED_PACKAGES; do
 
   if [ -n "$PACKAGE_STAGED_FILES" ]; then
     echo "  🔍 Linting staged files..."
+    LINT_FAILED=false
     for FILE in $PACKAGE_STAGED_FILES; do
       RELATIVE_FILE="${FILE#$PACKAGE_DIR/}"
-      (cd "$PACKAGE_DIR" && pnpm exec eslint --fix "$RELATIVE_FILE" 2>/dev/null || true)
-      git add "$FILE"
+      if ! (cd "$PACKAGE_DIR" && pnpm exec eslint --fix "$RELATIVE_FILE" 2>&1); then
+        LINT_FAILED=true
+        HAS_ERRORS=true
+      fi
+      git add "$FILE" 2>/dev/null || true
     done
 
+    if [ "$LINT_FAILED" = true ]; then
+      echo "  ❌ Linting failed"
+    fi
+
     echo "  🔬 Type checking staged files..."
-    (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit --skipLibCheck $RELATIVE_FILES 2>&1 | grep -v "node_modules" || true)
+    if ! (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit --skipLibCheck $RELATIVE_FILES 2>&1 | grep -v "node_modules"); then
+      echo "  ❌ Type checking failed"
+      HAS_ERRORS=true
+    fi
 
     if [ -n "$TEST_FILES" ]; then
       echo "  🧪 Running tests for staged test files..."
-      (cd "$PACKAGE_DIR" && pnpm exec vitest run $TEST_FILES --reporter=verbose)
+      if ! (cd "$PACKAGE_DIR" && pnpm exec vitest run $TEST_FILES --reporter=verbose); then
+        echo "  ❌ Tests failed"
+        HAS_ERRORS=true
+      fi
     else
       echo "  ℹ️  No test files staged, skipping tests"
     fi
@@ -69,4 +85,9 @@ for PACKAGE_DIR in $PROCESSED_PACKAGES; do
 done
 
 echo ""
+if [ "$HAS_ERRORS" = true ]; then
+  echo "❌ Pre-commit checks failed! Please fix the errors above before committing."
+  exit 1
+fi
+
 echo "✅ Pre-commit checks complete!"

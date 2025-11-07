@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { setups } from './setups'
 import { numeric } from './types'
 
 export const setupSignals = sqliteTable('setup_signals', {
-  id: integer('id').primaryKey(),
-  setupId: integer('setup_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  setupId: int('setup_id')
     .notNull()
     .references(() => setups.id, { onDelete: 'cascade' }),
   signalType: text('signal_type').notNull(),
@@ -17,11 +17,9 @@ export const setupSignals = sqliteTable('setup_signals', {
   value: numeric('value', { precision: 12, scale: 6 }),
   threshold: numeric('threshold', { precision: 12, scale: 6 }),
   confidence: numeric('confidence', { precision: 6, scale: 4 }),
-  stillValid: integer('still_valid', { mode: 'boolean' })
-    .notNull()
-    .default(true),
+  stillValid: int('still_valid', { mode: 'boolean' }).notNull().default(true),
   invalidatedAt: text('invalidated_at'),
-  requiresRecheck: integer('requires_recheck', { mode: 'boolean' })
+  requiresRecheck: int('requires_recheck', { mode: 'boolean' })
     .notNull()
     .default(true),
   lastRecheckedAt: text('last_rechecked_at'),

@@ -1,19 +1,19 @@
-import type { Timeframe } from './types'
+import { Timeframe } from './candles/enums'
 
 export function isNewCandleClosed(timeframe: Timeframe, currentTime: Date): boolean {
   const minute = currentTime.getUTCMinutes()
   const second = currentTime.getUTCSeconds()
   const hour = currentTime.getUTCHours()
 
-  if (timeframe === '1h') {
+  if (timeframe === Timeframe.ONE_HOUR) {
     return minute === 0 && second < 10
   }
 
-  if (timeframe === '4h') {
+  if (timeframe === Timeframe.FOUR_HOURS) {
     return hour % 4 === 0 && minute === 0 && second < 10
   }
 
-  if (timeframe === '1d') {
+  if (timeframe === Timeframe.ONE_DAY) {
     return hour === 0 && minute === 0 && second < 10
   }
 
@@ -28,15 +28,15 @@ export function calculateCandlesElapsed(
   const millisecondsDiff = currentTime.getTime() - startTime.getTime()
   const minutesDiff = millisecondsDiff / (1000 * 60)
 
-  if (timeframe === '1h') {
+  if (timeframe === Timeframe.ONE_HOUR) {
     return Math.floor(minutesDiff / 60)
   }
 
-  if (timeframe === '4h') {
+  if (timeframe === Timeframe.FOUR_HOURS) {
     return Math.floor(minutesDiff / 240)
   }
 
-  if (timeframe === '1d') {
+  if (timeframe === Timeframe.ONE_DAY) {
     return Math.floor(minutesDiff / 1440)
   }
 
@@ -46,14 +46,14 @@ export function calculateCandlesElapsed(
 export function getNextCandleCloseTime(timeframe: Timeframe, currentTime: Date): Date {
   const next = new Date(currentTime)
 
-  if (timeframe === '1h') {
+  if (timeframe === Timeframe.ONE_HOUR) {
     next.setUTCMinutes(0, 0, 0)
     next.setUTCHours(next.getUTCHours() + 1)
 
     return next
   }
 
-  if (timeframe === '4h') {
+  if (timeframe === Timeframe.FOUR_HOURS) {
     next.setUTCMinutes(0, 0, 0)
     const currentHour = next.getUTCHours()
     const nextFourHourMark = Math.ceil((currentHour + 1) / 4) * 4
@@ -63,7 +63,7 @@ export function getNextCandleCloseTime(timeframe: Timeframe, currentTime: Date):
     return next
   }
 
-  if (timeframe === '1d') {
+  if (timeframe === Timeframe.ONE_DAY) {
     next.setUTCHours(0, 0, 0, 0)
     next.setUTCDate(next.getUTCDate() + 1)
 
@@ -76,13 +76,13 @@ export function getNextCandleCloseTime(timeframe: Timeframe, currentTime: Date):
 export function getCandleOpenTime(timeframe: Timeframe, currentTime: Date): Date {
   const open = new Date(currentTime)
 
-  if (timeframe === '1h') {
+  if (timeframe === Timeframe.ONE_HOUR) {
     open.setUTCMinutes(0, 0, 0)
 
     return open
   }
 
-  if (timeframe === '4h') {
+  if (timeframe === Timeframe.FOUR_HOURS) {
     open.setUTCMinutes(0, 0, 0)
     const currentHour = open.getUTCHours()
     const fourHourMark = Math.floor(currentHour / 4) * 4
@@ -92,7 +92,7 @@ export function getCandleOpenTime(timeframe: Timeframe, currentTime: Date): Date
     return open
   }
 
-  if (timeframe === '1d') {
+  if (timeframe === Timeframe.ONE_DAY) {
     open.setUTCHours(0, 0, 0, 0)
 
     return open
@@ -117,11 +117,11 @@ export function getHoursSince(timestamp: string | Date): number {
 
 export function getTimeframeMinutes(timeframe: Timeframe): number {
   switch (timeframe) {
-    case '1h':
+    case Timeframe.ONE_HOUR:
       return 60
-    case '4h':
+    case Timeframe.FOUR_HOURS:
       return 240
-    case '1d':
+    case Timeframe.ONE_DAY:
       return 1440
     default:
       return 60

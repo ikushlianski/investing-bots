@@ -1,12 +1,12 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { users } from './users'
 import { exchanges } from './exchanges'
 import { numeric } from './types'
 
 export const portfolios = sqliteTable('portfolios', {
-  id: integer('id').primaryKey(),
-  userId: integer('user_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  userId: int('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
@@ -15,9 +15,7 @@ export const portfolios = sqliteTable('portfolios', {
   totalValue: numeric('total_value', { precision: 20, scale: 8 })
     .notNull()
     .default(0),
-  isDefault: integer('is_default', { mode: 'boolean' })
-    .notNull()
-    .default(false),
+  isDefault: int('is_default', { mode: 'boolean' }).notNull().default(false),
   lastSyncedAt: text('last_synced_at'),
   createdAt: text('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
@@ -28,11 +26,11 @@ export const portfolios = sqliteTable('portfolios', {
 })
 
 export const portfolioHoldings = sqliteTable('portfolio_holdings', {
-  id: integer('id').primaryKey(),
-  portfolioId: integer('portfolio_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  portfolioId: int('portfolio_id')
     .notNull()
     .references(() => portfolios.id, { onDelete: 'cascade' }),
-  exchangeId: integer('exchange_id')
+  exchangeId: int('exchange_id')
     .notNull()
     .references(() => exchanges.id, { onDelete: 'cascade' }),
   asset: text('asset').notNull(),

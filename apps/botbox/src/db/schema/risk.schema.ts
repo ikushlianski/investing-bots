@@ -1,10 +1,10 @@
-import { integer, sqliteTable } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable } from 'drizzle-orm/sqlite-core'
 import { bots } from './bots'
 import { numeric } from './types'
 
 export const riskConfigs = sqliteTable('risk_configs', {
-  id: integer('id').primaryKey(),
-  botId: integer('bot_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  botId: int('bot_id')
     .notNull()
     .references(() => bots.id, { onDelete: 'cascade' }),
   maxPositionSize: numeric('max_position_size', { precision: 20, scale: 8 }),

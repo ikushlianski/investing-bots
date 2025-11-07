@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { bots } from './bots'
 import { numeric } from './types'
 
 export const botPersonalities = sqliteTable('bot_personalities', {
-  id: integer('id').primaryKey(),
-  botId: integer('bot_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  botId: int('bot_id')
     .notNull()
     .references(() => bots.id, { onDelete: 'cascade' })
     .unique(),
@@ -43,9 +43,7 @@ export const botPersonalities = sqliteTable('bot_personalities', {
   })
     .notNull()
     .default(10),
-  maxConcurrentPositions: integer('max_concurrent_positions')
-    .notNull()
-    .default(3),
+  maxConcurrentPositions: int('max_concurrent_positions').notNull().default(3),
   minSetupQuality: numeric('min_setup_quality', { precision: 4, scale: 2 })
     .notNull()
     .default(0.6),
@@ -57,13 +55,13 @@ export const botPersonalities = sqliteTable('bot_personalities', {
   currentCapital: numeric('current_capital', { precision: 20, scale: 8 })
     .notNull()
     .default(100),
-  partialProfitTaking: integer('partial_profit_taking', { mode: 'boolean' })
+  partialProfitTaking: int('partial_profit_taking', { mode: 'boolean' })
     .notNull()
     .default(false),
   breakevenMovement: numeric('breakeven_movement', { precision: 4, scale: 2 })
     .notNull()
     .default(0.5),
-  maxDailyTrades: integer('max_daily_trades'),
+  maxDailyTrades: int('max_daily_trades'),
   volatilityTolerance: numeric('volatility_tolerance', {
     precision: 4,
     scale: 2,

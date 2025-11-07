@@ -16,6 +16,7 @@
       "binding": "DB",
       "database_name": "botbox-db",
       "database_id": "9e87a7a7-4fa4-438b-916a-0837f84dff00",
+      "migrations_dir": "./migrations",
       "remote": true,
     },
   ],

@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { bots } from './bots'
 import { instruments } from './instruments'
 import { setups } from './setups'
@@ -8,19 +8,19 @@ import { positions } from './trading'
 import { numeric } from './types'
 
 export const trades = sqliteTable('trades', {
-  id: integer('id').primaryKey(),
-  botId: integer('bot_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  botId: int('bot_id')
     .notNull()
     .references(() => bots.id, { onDelete: 'cascade' }),
-  setupId: integer('setup_id')
+  setupId: int('setup_id')
     .notNull()
     .references(() => setups.id, { onDelete: 'cascade' }),
-  instrumentId: integer('instrument_id')
+  instrumentId: int('instrument_id')
     .notNull()
     .references(() => instruments.id, { onDelete: 'cascade' }),
-  entryOrderId: integer('entry_order_id').references(() => orders.id),
-  exitOrderId: integer('exit_order_id').references(() => orders.id),
-  positionId: integer('position_id').references(() => positions.id),
+  entryOrderId: int('entry_order_id').references(() => orders.id),
+  exitOrderId: int('exit_order_id').references(() => orders.id),
+  positionId: int('position_id').references(() => positions.id),
   direction: text('direction').notNull(), // 'LONG' or 'SHORT'
   entryPrice: numeric('entry_price', { precision: 20, scale: 8 }).notNull(),
   quantity: numeric('quantity', { precision: 20, scale: 8 }).notNull(),
@@ -38,7 +38,7 @@ export const trades = sqliteTable('trades', {
     precision: 10,
     scale: 4,
   }),
-  stopMovedToBreakeven: integer('stop_moved_to_breakeven', { mode: 'boolean' })
+  stopMovedToBreakeven: int('stop_moved_to_breakeven', { mode: 'boolean' })
     .notNull()
     .default(false),
   status: text('status').notNull().default('OPEN'),

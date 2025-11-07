@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const exchanges = sqliteTable('exchanges', {
-  id: integer('id').primaryKey(),
+  id: int('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull().unique(),
   apiUrl: text('api_url').notNull(),
   websocketUrl: text('websocket_url'),

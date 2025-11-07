@@ -1,13 +1,13 @@
 import { sql } from 'drizzle-orm'
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { instruments } from './instruments'
 import { marketRegimes } from './market-regimes'
 import { strategyVersions } from './strategy'
 import { numeric } from './types'
 
 export const setups = sqliteTable('setups', {
-  id: integer('id').primaryKey(),
-  instrumentId: integer('instrument_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  instrumentId: int('instrument_id')
     .notNull()
     .references(() => instruments.id, { onDelete: 'cascade' }),
   entryTimeframe: text('entry_timeframe').notNull(),
@@ -21,9 +21,9 @@ export const setups = sqliteTable('setups', {
   activatedAt: text('activated_at'),
   triggeredAt: text('triggered_at'),
   expiresAt: text('expires_at').notNull(),
-  formingDurationMinutes: integer('forming_duration_minutes').notNull(),
-  activeDurationMinutes: integer('active_duration_minutes').notNull(),
-  candlesElapsed: integer('candles_elapsed').notNull().default(0),
+  formingDurationMinutes: int('forming_duration_minutes').notNull(),
+  activeDurationMinutes: int('active_duration_minutes').notNull(),
+  candlesElapsed: int('candles_elapsed').notNull().default(0),
   entryZoneLow: numeric('entry_zone_low', {
     precision: 20,
     scale: 8,
@@ -36,11 +36,9 @@ export const setups = sqliteTable('setups', {
   takeProfit1: numeric('take_profit_1', { precision: 20, scale: 8 }),
   takeProfit2: numeric('take_profit_2', { precision: 20, scale: 8 }),
   takeProfit3: numeric('take_profit_3', { precision: 20, scale: 8 }),
-  regimeId: integer('regime_id').references(() => marketRegimes.id),
-  contextRegimeId: integer('context_regime_id').references(
-    () => marketRegimes.id
-  ),
-  strategyVersionId: integer('strategy_version_id')
+  regimeId: int('regime_id').references(() => marketRegimes.id),
+  contextRegimeId: int('context_regime_id').references(() => marketRegimes.id),
+  strategyVersionId: int('strategy_version_id')
     .notNull()
     .references(() => strategyVersions.id, { onDelete: 'cascade' }),
   riskRewardRatio: numeric('risk_reward_ratio', { precision: 8, scale: 4 }),
@@ -48,7 +46,7 @@ export const setups = sqliteTable('setups', {
     precision: 20,
     scale: 8,
   }),
-  requiredConfirmations: integer('required_confirmations').notNull().default(3),
+  requiredConfirmations: int('required_confirmations').notNull().default(3),
   parameters: text('parameters', { mode: 'json' }),
   invalidatedAt: text('invalidated_at'),
   invalidationReason: text('invalidation_reason'),

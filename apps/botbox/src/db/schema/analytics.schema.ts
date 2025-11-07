@@ -1,10 +1,10 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
-import { bots } from './core'
+import { sqliteTable, text, int } from 'drizzle-orm/sqlite-core'
+import { bots } from './bots'
 import { numeric } from './types'
 
 export const pnlRecords = sqliteTable('pnl_records', {
-  id: integer('id').primaryKey(),
-  botId: integer('bot_id')
+  id: int('id').primaryKey({ autoIncrement: true }),
+  botId: int('bot_id')
     .notNull()
     .references(() => bots.id),
   pnl: numeric('pnl', { precision: 20, scale: 8 }).notNull(),
