@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm'
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
-export const users = sqliteTable('users', {
-  id: int('id').primaryKey({ autoIncrement: true }),
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
   email: text('email').notNull().unique(),
   hashedPassword: text('hashed_password').notNull(),
-  createdAt: text('created_at')
+  createdAt: timestamp('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 })

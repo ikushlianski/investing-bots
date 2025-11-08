@@ -18,14 +18,14 @@
     "preview": "npm run build && vite preview",
     "cf-typegen": "wrangler types",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply botbox-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply botbox-db --remote",
+    "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:create": "wrangler d1 create botbox-db"
+    "db:test": "tsx scripts/test-connection.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
+    "@neondatabase/serverless": "^1.0.2",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.7.0",
     "@tanstack/react-router": "^1.132.0",
@@ -33,6 +33,7 @@
     "@tanstack/react-router-ssr-query": "^1.131.7",
     "@tanstack/react-start": "^1.132.0",
     "@tanstack/router-plugin": "^1.132.0",
+    "@types/pg": "^8.15.6",
     "bcryptjs": "^3.0.2",
     "drizzle-kit": "^0.31.5",
     "drizzle-orm": "^0.44.7",
@@ -41,6 +42,7 @@
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.0.6",
     "vite-tsconfig-paths": "^5.1.4",
+    "ws": "^8.18.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {

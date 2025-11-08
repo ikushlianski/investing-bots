@@ -1,10 +1,10 @@
-import { int, sqliteTable } from 'drizzle-orm/sqlite-core'
+import { pgTable, serial, integer } from 'drizzle-orm/pg-core'
 import { bots } from './bots.schema'
 import { numeric } from './types.schema'
 
-export const riskConfigs = sqliteTable('risk_configs', {
-  id: int('id').primaryKey({ autoIncrement: true }),
-  botId: int('bot_id')
+export const riskConfigs = pgTable('risk_configs', {
+  id: serial('id').primaryKey(),
+  botId: integer('bot_id')
     .notNull()
     .references(() => bots.id, { onDelete: 'cascade' }),
   maxPositionSize: numeric('max_position_size', { precision: 20, scale: 8 }),

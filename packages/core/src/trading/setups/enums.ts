@@ -18,3 +18,4 @@ export enum SetupDirection {
   LONG = "LONG",
   SHORT = "SHORT",
 }
+

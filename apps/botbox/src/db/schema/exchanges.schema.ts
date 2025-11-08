@@ -1,12 +1,12 @@
 import { sql } from 'drizzle-orm'
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
-export const exchanges = sqliteTable('exchanges', {
-  id: int('id').primaryKey({ autoIncrement: true }),
+export const exchanges = pgTable('exchanges', {
+  id: serial('id').primaryKey(),
   name: text('name').notNull().unique(),
   apiUrl: text('api_url').notNull(),
   websocketUrl: text('websocket_url'),
-  createdAt: text('created_at')
+  createdAt: timestamp('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 })

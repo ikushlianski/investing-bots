@@ -11,23 +11,12 @@
   "observability": {
     "enabled": true,
   },
-  "d1_databases": [
+  "hyperdrive": [
     {
-      "binding": "DB",
-      "database_name": "botbox-db",
-      "database_id": "9e87a7a7-4fa4-438b-916a-0837f84dff00",
-      "migrations_dir": "./migrations",
-      "remote": true,
+      "binding": "HYPERDRIVE",
+      "id": "b0a789835fab4dad8f248d93ab9cede4",
     },
   ],
-  /**
-   * Production database configuration (to be created later):
-   * When ready for production:
-   * 1. Run: npx wrangler d1 create botbox-db-prod
-   * 2. Replace database_id above with production ID
-   * 3. Set remote: false for local dev
-   * 4. Keep this config for production deployments
-   */
   "vars": {
     "WEBHOOK_SECRET": "dev-secret-change-in-production",
   },

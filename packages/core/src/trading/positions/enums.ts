@@ -12,3 +12,4 @@ export enum ExitReason {
   MANUAL = "MANUAL",
   BREAKEVEN = "BREAKEVEN",
 }
+

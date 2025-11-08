@@ -1,35 +1,36 @@
 import { sql } from 'drizzle-orm'
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import {
+  pgTable,
+  serial,
+  integer,
+  text,
+  timestamp,
+  jsonb,
+} from 'drizzle-orm/pg-core'
 import { strategies } from './strategies.schema'
 import { setups } from './setups.schema'
 
-export const strategyVersions = sqliteTable('strategy_versions', {
-  id: int('id').primaryKey({ autoIncrement: true }),
-  strategyId: int('strategy_id')
+export const strategyVersions = pgTable('strategy_versions', {
+  id: serial('id').primaryKey(),
+  strategyId: integer('strategy_id')
     .notNull()
     .references(() => strategies.id, { onDelete: 'cascade' }),
-  version: int('version').notNull(),
-  /**
-   * @deprecated Use strategyVersionMetrics table instead.
-   * This JSON field is kept for backward compatibility but strategy parameters
-   * should be stored in the strategyVersionMetrics table for better queryability
-   * and editability.
-   */
-  config: text('config', { mode: 'json' }),
-  createdAt: text('created_at')
+  version: integer('version').notNull(),
+  config: jsonb('config'),
+  createdAt: timestamp('created_at')
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 })
 
-export const signals = sqliteTable('signals', {
-  id: int('id').primaryKey({ autoIncrement: true }),
-  strategyVersionId: int('strategy_version_id')
+export const signals = pgTable('signals', {
+  id: serial('id').primaryKey(),
+  strategyVersionId: integer('strategy_version_id')
     .notNull()
     .references(() => strategyVersions.id),
-  setupId: int('setup_id').references(() => setups.id),
-  signalType: text('signal_type').notNull(), // e.g., 'entry', 'exit'
+  setupId: integer('setup_id').references(() => setups.id),
+  signalType: text('signal_type').notNull(),
   indicator: text('indicator'),
-  timestamp: text('timestamp').notNull(),
-  processedAt: text('processed_at'),
-  payload: text('payload', { mode: 'json' }), // Raw webhook payload
+  timestamp: timestamp('timestamp').notNull(),
+  processedAt: timestamp('processed_at'),
+  payload: jsonb('payload'),
 })

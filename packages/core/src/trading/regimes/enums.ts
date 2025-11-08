@@ -6,3 +6,4 @@ export enum MarketRegimeType {
   DEAD = "DEAD",
   NEUTRAL = "NEUTRAL",
 }
+

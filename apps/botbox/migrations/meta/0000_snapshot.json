@@ -1,219 +1,146 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "196644a5-0246-4eb2-8a40-1b31d3c2422f",
+  "id": "44e9ff3c-1295-4cb5-9475-f2502b78cf42",
   "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "audit_logs": {
-      "name": "audit_logs",
+    "public.users": {
+      "name": "users",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "bot_id": {
-          "name": "bot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "level": {
-          "name": "level",
+        "email": {
+          "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "event": {
-          "name": "event",
+        "hashed_password": {
+          "name": "hashed_password",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "message": {
-          "name": "message",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "audit_logs_bot_id_bots_id_fk": {
-          "name": "audit_logs_bot_id_bots_id_fk",
-          "tableFrom": "audit_logs",
-          "tableTo": "bots",
-          "columnsFrom": [
-            "bot_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "bot_instruments": {
-      "name": "bot_instruments",
-      "columns": {
-        "bot_id": {
-          "name": "bot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "instrument_id": {
-          "name": "instrument_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
         }
       },
-      "indexes": {},
-      "foreignKeys": {
-        "bot_instruments_bot_id_bots_id_fk": {
-          "name": "bot_instruments_bot_id_bots_id_fk",
-          "tableFrom": "bot_instruments",
-          "tableTo": "bots",
-          "columnsFrom": [
-            "bot_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "bot_instruments_instrument_id_instruments_id_fk": {
-          "name": "bot_instruments_instrument_id_instruments_id_fk",
-          "tableFrom": "bot_instruments",
-          "tableTo": "instruments",
-          "columnsFrom": [
-            "instrument_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "bots": {
-      "name": "bots",
+    "public.exchanges": {
+      "name": "exchanges",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "status": {
-          "name": "status",
+        "api_url": {
+          "name": "api_url",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'inactive'"
+          "notNull": true
+        },
+        "websocket_url": {
+          "name": "websocket_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "bots_name_unique": {
-          "name": "bots_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
+      "uniqueConstraints": {
+        "exchanges_name_unique": {
+          "name": "exchanges_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "credentials": {
+    "public.credentials": {
       "name": "credentials",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "exchange_id": {
           "name": "exchange_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "api_key": {
           "name": "api_key",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "api_secret": {
           "name": "api_secret",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         }
       },
@@ -248,200 +175,511 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "exchanges": {
-      "name": "exchanges",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "api_url": {
-          "name": "api_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "websocket_url": {
-          "name": "websocket_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "exchanges_name_unique": {
-          "name": "exchanges_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "instruments": {
+    "public.instruments": {
       "name": "instruments",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "symbol": {
           "name": "symbol",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "exchange": {
           "name": "exchange",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "instruments_symbol_unique": {
-          "name": "instruments_symbol_unique",
-          "columns": [
-            "symbol"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
+      "uniqueConstraints": {
+        "instruments_symbol_unique": {
+          "name": "instruments_symbol_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "symbol"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "orders": {
-      "name": "orders",
+    "public.bot_instruments": {
+      "name": "bot_instruments",
+      "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
         "bot_id": {
           "name": "bot_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "instrument_id": {
           "name": "instrument_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bot_instruments_bot_id_bots_id_fk": {
+          "name": "bot_instruments_bot_id_bots_id_fk",
+          "tableFrom": "bot_instruments",
+          "tableTo": "bots",
+          "columnsFrom": [
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
-        "exchange_order_id": {
-          "name": "exchange_order_id",
+        "bot_instruments_instrument_id_instruments_id_fk": {
+          "name": "bot_instruments_instrument_id_instruments_id_fk",
+          "tableFrom": "bot_instruments",
+          "tableTo": "instruments",
+          "columnsFrom": [
+            "instrument_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "bot_instruments_bot_id_instrument_id_pk": {
+          "name": "bot_instruments_bot_id_instrument_id_pk",
+          "columns": [
+            "bot_id",
+            "instrument_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bots": {
+      "name": "bots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true
+        },
+        "personality_name": {
+          "name": "personality_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exchange_id": {
+          "name": "exchange_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "status": {
           "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "default": "'inactive'"
         },
-        "side": {
-          "name": "side",
-          "type": "text",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bots_user_id_users_id_fk": {
+          "name": "bots_user_id_users_id_fk",
+          "tableFrom": "bots",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bots_exchange_id_exchanges_id_fk": {
+          "name": "bots_exchange_id_exchanges_id_fk",
+          "tableFrom": "bots",
+          "tableTo": "exchanges",
+          "columnsFrom": [
+            "exchange_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bots_strategy_version_id_strategy_versions_id_fk": {
+          "name": "bots_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "bots",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategies": {
+      "name": "strategies",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "strategies_name_unique": {
+          "name": "strategies_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.signals": {
+      "name": "signals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "setup_id": {
+          "name": "setup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signal_type": {
+          "name": "signal_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indicator": {
+          "name": "indicator",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "signals_strategy_version_id_strategy_versions_id_fk": {
+          "name": "signals_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "signals",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "signals_setup_id_setups_id_fk": {
+          "name": "signals_setup_id_setups_id_fk",
+          "tableFrom": "signals",
+          "tableTo": "setups",
+          "columnsFrom": [
+            "setup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategy_versions": {
+      "name": "strategy_versions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "strategy_id": {
+          "name": "strategy_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "config": {
+          "name": "config",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "strategy_versions_strategy_id_strategies_id_fk": {
+          "name": "strategy_versions_strategy_id_strategies_id_fk",
+          "tableFrom": "strategy_versions",
+          "tableTo": "strategies",
+          "columnsFrom": [
+            "strategy_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.orders": {
+      "name": "orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bot_id": {
+          "name": "bot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "setup_id": {
+          "name": "setup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signal_id": {
+          "name": "signal_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credential_id": {
+          "name": "credential_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "type": {
           "name": "type",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "quantity": {
-          "name": "quantity",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "price": {
-          "name": "price",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filled_quantity": {
+          "name": "filled_quantity",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
           "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "orders_exchange_order_id_unique": {
-          "name": "orders_exchange_order_id_unique",
-          "columns": [
-            "exchange_order_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "orders_bot_id_bots_id_fk": {
           "name": "orders_bot_id_bots_id_fk",
@@ -453,7 +691,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "orders_instrument_id_instruments_id_fk": {
@@ -466,54 +704,54 @@
           "columnsTo": [
             "id"
           ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "orders_setup_id_setups_id_fk": {
+          "name": "orders_setup_id_setups_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "setups",
+          "columnsFrom": [
+            "setup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "pnl_records": {
-      "name": "pnl_records",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
         },
-        "bot_id": {
-          "name": "bot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "pnl": {
-          "name": "pnl",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "timestamp": {
-          "name": "timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "pnl_records_bot_id_bots_id_fk": {
-          "name": "pnl_records_bot_id_bots_id_fk",
-          "tableFrom": "pnl_records",
-          "tableTo": "bots",
+        "orders_signal_id_signals_id_fk": {
+          "name": "orders_signal_id_signals_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "signals",
           "columnsFrom": [
-            "bot_id"
+            "signal_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orders_strategy_version_id_strategy_versions_id_fk": {
+          "name": "orders_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orders_credential_id_credentials_id_fk": {
+          "name": "orders_credential_id_credentials_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "credentials",
+          "columnsFrom": [
+            "credential_id"
           ],
           "columnsTo": [
             "id"
@@ -524,81 +762,86 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "positions": {
+    "public.positions": {
       "name": "positions",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "bot_id": {
           "name": "bot_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "instrument_id": {
           "name": "instrument_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
+        },
+        "setup_id": {
+          "name": "setup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "status": {
           "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "'open'"
         },
         "entry_price": {
           "name": "entry_price",
-          "type": "real",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "exit_price": {
           "name": "exit_price",
-          "type": "real",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "size": {
           "name": "size",
-          "type": "real",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "pnl": {
           "name": "pnl",
-          "type": "real",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "opened_at": {
           "name": "opened_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "closed_at": {
           "name": "closed_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
@@ -628,49 +871,73 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "positions_setup_id_setups_id_fk": {
+          "name": "positions_setup_id_setups_id_fk",
+          "tableFrom": "positions",
+          "tableTo": "setups",
+          "columnsFrom": [
+            "setup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "positions_strategy_version_id_strategy_versions_id_fk": {
+          "name": "positions_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "positions",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "risk_configs": {
+    "public.risk_configs": {
       "name": "risk_configs",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "bot_id": {
           "name": "bot_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "max_position_size": {
           "name": "max_position_size",
-          "type": "real",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "stop_loss_percentage": {
           "name": "stop_loss_percentage",
-          "type": "real",
+          "type": "numeric(10, 4)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "take_profit_percentage": {
           "name": "take_profit_percentage",
-          "type": "real",
+          "type": "numeric(10, 4)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
@@ -691,69 +958,47 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "signals": {
-      "name": "signals",
+    "public.pnl_records": {
+      "name": "pnl_records",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "strategy_version_id": {
-          "name": "strategy_version_id",
+        "bot_id": {
+          "name": "bot_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "signal_type": {
-          "name": "signal_type",
-          "type": "text",
+        "pnl": {
+          "name": "pnl",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "indicator": {
-          "name": "indicator",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "processed_at": {
-          "name": "processed_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "payload": {
-          "name": "payload",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "signals_strategy_version_id_strategy_versions_id_fk": {
-          "name": "signals_strategy_version_id_strategy_versions_id_fk",
-          "tableFrom": "signals",
-          "tableTo": "strategy_versions",
+        "pnl_records_bot_id_bots_id_fk": {
+          "name": "pnl_records_bot_id_bots_id_fk",
+          "tableFrom": "pnl_records",
+          "tableTo": "bots",
           "columnsFrom": [
-            "strategy_version_id"
+            "bot_id"
           ],
           "columnsTo": [
             "id"
@@ -764,103 +1009,155 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "strategies": {
-      "name": "strategies",
+    "public.audit_logs": {
+      "name": "audit_logs",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "name": {
-          "name": "name",
+        "bot_id": {
+          "name": "bot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "description": {
-          "name": "description",
+        "event": {
+          "name": "event",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
-        }
-      },
-      "indexes": {
-        "strategies_name_unique": {
-          "name": "strategies_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "strategy_versions": {
-      "name": "strategy_versions",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "strategy_id": {
-          "name": "strategy_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "config": {
-          "name": "config",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "strategy_versions_strategy_id_strategies_id_fk": {
-          "name": "strategy_versions_strategy_id_strategies_id_fk",
-          "tableFrom": "strategy_versions",
-          "tableTo": "strategies",
+        "audit_logs_bot_id_bots_id_fk": {
+          "name": "audit_logs_bot_id_bots_id_fk",
+          "tableFrom": "audit_logs",
+          "tableTo": "bots",
           "columnsFrom": [
-            "strategy_id"
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.market_regimes": {
+      "name": "market_regimes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeframe": {
+          "name": "timeframe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "regime_type": {
+          "name": "regime_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "still_active": {
+          "name": "still_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "trend_strength": {
+          "name": "trend_strength",
+          "type": "numeric(12, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price_vs_ma": {
+          "name": "price_vs_ma",
+          "type": "numeric(12, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volatility": {
+          "name": "volatility",
+          "type": "numeric(12, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "ended_at": {
+          "name": "ended_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parameters": {
+          "name": "parameters",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "market_regimes_instrument_id_instruments_id_fk": {
+          "name": "market_regimes_instrument_id_instruments_id_fk",
+          "tableFrom": "market_regimes",
+          "tableTo": "instruments",
+          "columnsFrom": [
+            "instrument_id"
           ],
           "columnsTo": [
             "id"
@@ -871,69 +1168,861 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "trades": {
-      "name": "trades",
+    "public.price_levels": {
+      "name": "price_levels",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "order_id": {
-          "name": "order_id",
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeframe": {
+          "name": "timeframe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level_type": {
+          "name": "level_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strength": {
+          "name": "strength",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "default": 1
+        },
+        "tests": {
+          "name": "tests",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "still_valid": {
+          "name": "still_valid",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "first_tested_at": {
+          "name": "first_tested_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "last_tested_at": {
+          "name": "last_tested_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "invalidated_at": {
+          "name": "invalidated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parameters": {
+          "name": "parameters",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "price_levels_instrument_id_instruments_id_fk": {
+          "name": "price_levels_instrument_id_instruments_id_fk",
+          "tableFrom": "price_levels",
+          "tableTo": "instruments",
+          "columnsFrom": [
+            "instrument_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.setups": {
+      "name": "setups",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entry_timeframe": {
+          "name": "entry_timeframe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "context_timeframe": {
+          "name": "context_timeframe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "setup_type": {
+          "name": "setup_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direction": {
+          "name": "direction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'FORMING'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "activated_at": {
+          "name": "activated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "triggered_at": {
+          "name": "triggered_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "forming_duration_minutes": {
+          "name": "forming_duration_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active_duration_minutes": {
+          "name": "active_duration_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "candles_elapsed": {
+          "name": "candles_elapsed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "entry_zone_low": {
+          "name": "entry_zone_low",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entry_zone_high": {
+          "name": "entry_zone_high",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stop_loss": {
+          "name": "stop_loss",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "take_profit_1": {
+          "name": "take_profit_1",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "take_profit_2": {
+          "name": "take_profit_2",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "take_profit_3": {
+          "name": "take_profit_3",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "regime_id": {
+          "name": "regime_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "context_regime_id": {
+          "name": "context_regime_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "risk_reward_ratio": {
+          "name": "risk_reward_ratio",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position_size_planned": {
+          "name": "position_size_planned",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "required_confirmations": {
+          "name": "required_confirmations",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 3
+        },
+        "parameters": {
+          "name": "parameters",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "invalidated_at": {
+          "name": "invalidated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "invalidation_reason": {
+          "name": "invalidation_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "setups_instrument_id_instruments_id_fk": {
+          "name": "setups_instrument_id_instruments_id_fk",
+          "tableFrom": "setups",
+          "tableTo": "instruments",
+          "columnsFrom": [
+            "instrument_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "setups_regime_id_market_regimes_id_fk": {
+          "name": "setups_regime_id_market_regimes_id_fk",
+          "tableFrom": "setups",
+          "tableTo": "market_regimes",
+          "columnsFrom": [
+            "regime_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "setups_context_regime_id_market_regimes_id_fk": {
+          "name": "setups_context_regime_id_market_regimes_id_fk",
+          "tableFrom": "setups",
+          "tableTo": "market_regimes",
+          "columnsFrom": [
+            "context_regime_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "setups_strategy_version_id_strategy_versions_id_fk": {
+          "name": "setups_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "setups",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.setup_signals": {
+      "name": "setup_signals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "setup_id": {
+          "name": "setup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric_id": {
+          "name": "metric_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signal_type": {
+          "name": "signal_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "signal_role": {
+          "name": "signal_role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detected_on_timeframe": {
+          "name": "detected_on_timeframe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fired_at": {
+          "name": "fired_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(12, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "threshold": {
+          "name": "threshold",
+          "type": "numeric(12, 6)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "numeric(6, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "still_valid": {
+          "name": "still_valid",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "invalidated_at": {
+          "name": "invalidated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requires_recheck": {
+          "name": "requires_recheck",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "last_rechecked_at": {
+          "name": "last_rechecked_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parameters": {
+          "name": "parameters",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "setup_signals_setup_id_setups_id_fk": {
+          "name": "setup_signals_setup_id_setups_id_fk",
+          "tableFrom": "setup_signals",
+          "tableTo": "setups",
+          "columnsFrom": [
+            "setup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "setup_signals_metric_id_strategy_metrics_id_fk": {
+          "name": "setup_signals_metric_id_strategy_metrics_id_fk",
+          "tableFrom": "setup_signals",
+          "tableTo": "strategy_metrics",
+          "columnsFrom": [
+            "metric_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.candles": {
+      "name": "candles",
+      "schema": "",
+      "columns": {
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timeframe": {
+          "name": "timeframe",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "open": {
+          "name": "open",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "high": {
+          "name": "high",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "low": {
+          "name": "low",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "close": {
+          "name": "close",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "volume": {
+          "name": "volume",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bb_upper": {
+          "name": "bb_upper",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bb_middle": {
+          "name": "bb_middle",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bb_lower": {
+          "name": "bb_lower",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rsi": {
+          "name": "rsi",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "atr": {
+          "name": "atr",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume_ma": {
+          "name": "volume_ma",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {
+        "candles_instrument_timeframe_timestamp_idx": {
+          "name": "candles_instrument_timeframe_timestamp_idx",
+          "columns": [
+            {
+              "expression": "instrument_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "timeframe",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "timestamp",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "candles_timestamp_idx": {
+          "name": "candles_timestamp_idx",
+          "columns": [
+            {
+              "expression": "timestamp",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "candles_instrument_id_instruments_id_fk": {
+          "name": "candles_instrument_id_instruments_id_fk",
+          "tableFrom": "candles",
+          "tableTo": "instruments",
+          "columnsFrom": [
+            "instrument_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "candles_instrument_id_timeframe_timestamp_pk": {
+          "name": "candles_instrument_id_timeframe_timestamp_pk",
+          "columns": [
+            "instrument_id",
+            "timeframe",
+            "timestamp"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.trades": {
+      "name": "trades",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bot_id": {
+          "name": "bot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "setup_id": {
+          "name": "setup_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entry_order_id": {
+          "name": "entry_order_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exit_order_id": {
+          "name": "exit_order_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "position_id": {
           "name": "position_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": false
         },
-        "price": {
-          "name": "price",
-          "type": "real",
+        "direction": {
+          "name": "direction",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
+        },
+        "entry_price": {
+          "name": "entry_price",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
         },
         "quantity": {
           "name": "quantity",
-          "type": "real",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stop_loss": {
+          "name": "stop_loss",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "take_profit_1": {
+          "name": "take_profit_1",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "take_profit_2": {
+          "name": "take_profit_2",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entry_time": {
+          "name": "entry_time",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "default": "CURRENT_TIMESTAMP"
         },
-        "fee": {
-          "name": "fee",
-          "type": "real",
+        "exit_time": {
+          "name": "exit_time",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
-        "timestamp": {
-          "name": "timestamp",
+        "exit_price": {
+          "name": "exit_price",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exit_reason": {
+          "name": "exit_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "realized_pnl": {
+          "name": "realized_pnl",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "realized_pnl_percent": {
+          "name": "realized_pnl_percent",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stop_moved_to_breakeven": {
+          "name": "stop_moved_to_breakeven",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "default": "'OPEN'"
+        },
+        "trigger_signals": {
+          "name": "trigger_signals",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "trades_order_id_orders_id_fk": {
-          "name": "trades_order_id_orders_id_fk",
+        "trades_bot_id_bots_id_fk": {
+          "name": "trades_bot_id_bots_id_fk",
+          "tableFrom": "trades",
+          "tableTo": "bots",
+          "columnsFrom": [
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "trades_setup_id_setups_id_fk": {
+          "name": "trades_setup_id_setups_id_fk",
+          "tableFrom": "trades",
+          "tableTo": "setups",
+          "columnsFrom": [
+            "setup_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "trades_instrument_id_instruments_id_fk": {
+          "name": "trades_instrument_id_instruments_id_fk",
+          "tableFrom": "trades",
+          "tableTo": "instruments",
+          "columnsFrom": [
+            "instrument_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "trades_entry_order_id_orders_id_fk": {
+          "name": "trades_entry_order_id_orders_id_fk",
           "tableFrom": "trades",
           "tableTo": "orders",
           "columnsFrom": [
-            "order_id"
+            "entry_order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "trades_exit_order_id_orders_id_fk": {
+          "name": "trades_exit_order_id_orders_id_fk",
+          "tableFrom": "trades",
+          "tableTo": "orders",
+          "columnsFrom": [
+            "exit_order_id"
           ],
           "columnsTo": [
             "id"
@@ -957,64 +2046,894 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "users": {
-      "name": "users",
+    "public.portfolio_holdings": {
+      "name": "portfolio_holdings",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "email": {
-          "name": "email",
+        "portfolio_id": {
+          "name": "portfolio_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "exchange_id": {
+          "name": "exchange_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "asset": {
+          "name": "asset",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "hashed_password": {
-          "name": "hashed_password",
-          "type": "text",
+        "free": {
+          "name": "free",
+          "type": "numeric(20, 8)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "default": "'0'"
+        },
+        "locked": {
+          "name": "locked",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "total": {
+          "name": "total",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "average_buy_price": {
+          "name": "average_buy_price",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_price": {
+          "name": "current_price",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exchange_metadata": {
+          "name": "exchange_metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_synced_at": {
+          "name": "last_synced_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
           "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "columns": [
-            "email"
+      "indexes": {},
+      "foreignKeys": {
+        "portfolio_holdings_portfolio_id_portfolios_id_fk": {
+          "name": "portfolio_holdings_portfolio_id_portfolios_id_fk",
+          "tableFrom": "portfolio_holdings",
+          "tableTo": "portfolios",
+          "columnsFrom": [
+            "portfolio_id"
           ],
-          "isUnique": true
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "portfolio_holdings_exchange_id_exchanges_id_fk": {
+          "name": "portfolio_holdings_exchange_id_exchanges_id_fk",
+          "tableFrom": "portfolio_holdings",
+          "tableTo": "exchanges",
+          "columnsFrom": [
+            "exchange_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.portfolios": {
+      "name": "portfolios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "base_currency": {
+          "name": "base_currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'USDT'"
+        },
+        "total_value": {
+          "name": "total_value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "last_synced_at": {
+          "name": "last_synced_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "portfolios_user_id_users_id_fk": {
+          "name": "portfolios_user_id_users_id_fk",
+          "tableFrom": "portfolios",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bot_personalities": {
+      "name": "bot_personalities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bot_id": {
+          "name": "bot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "personality_name": {
+          "name": "personality_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "risk_appetite": {
+          "name": "risk_appetite",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "stop_loss_tightness": {
+          "name": "stop_loss_tightness",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "take_profit_aggressiveness": {
+          "name": "take_profit_aggressiveness",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "entry_patience": {
+          "name": "entry_patience",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "entry_confidence_threshold": {
+          "name": "entry_confidence_threshold",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.7'"
+        },
+        "trail_stop_aggressiveness": {
+          "name": "trail_stop_aggressiveness",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "max_position_size_percent": {
+          "name": "max_position_size_percent",
+          "type": "numeric(6, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'10'"
+        },
+        "max_concurrent_positions": {
+          "name": "max_concurrent_positions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 3
+        },
+        "min_setup_quality": {
+          "name": "min_setup_quality",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.6'"
+        },
+        "preferred_setups": {
+          "name": "preferred_setups",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "regime_preference": {
+          "name": "regime_preference",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "starting_capital": {
+          "name": "starting_capital",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'100'"
+        },
+        "current_capital": {
+          "name": "current_capital",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'100'"
+        },
+        "partial_profit_taking": {
+          "name": "partial_profit_taking",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "breakeven_movement": {
+          "name": "breakeven_movement",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "max_daily_trades": {
+          "name": "max_daily_trades",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volatility_tolerance": {
+          "name": "volatility_tolerance",
+          "type": "numeric(4, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.5'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bot_personalities_bot_id_bots_id_fk": {
+          "name": "bot_personalities_bot_id_bots_id_fk",
+          "tableFrom": "bot_personalities",
+          "tableTo": "bots",
+          "columnsFrom": [
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "bot_personalities_bot_id_unique": {
+          "name": "bot_personalities_bot_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "bot_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bot_strategies": {
+      "name": "bot_strategies",
+      "schema": "",
+      "columns": {
+        "bot_id": {
+          "name": "bot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "priority": {
+          "name": "priority",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "weight": {
+          "name": "weight",
+          "type": "numeric(6, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'1'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bot_strategies_bot_id_bots_id_fk": {
+          "name": "bot_strategies_bot_id_bots_id_fk",
+          "tableFrom": "bot_strategies",
+          "tableTo": "bots",
+          "columnsFrom": [
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "bot_strategies_strategy_version_id_strategy_versions_id_fk": {
+          "name": "bot_strategies_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "bot_strategies",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "bot_strategies_bot_id_strategy_version_id_pk": {
+          "name": "bot_strategies_bot_id_strategy_version_id_pk",
+          "columns": [
+            "bot_id",
+            "strategy_version_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategy_setup_types": {
+      "name": "strategy_setup_types",
+      "schema": "",
+      "columns": {
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "setup_type": {
+          "name": "setup_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "strategy_setup_types_strategy_version_id_strategy_versions_id_fk": {
+          "name": "strategy_setup_types_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "strategy_setup_types",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "strategy_setup_types_strategy_version_id_setup_type_pk": {
+          "name": "strategy_setup_types_strategy_version_id_setup_type_pk",
+          "columns": [
+            "strategy_version_id",
+            "setup_type"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.setup_signal_metrics": {
+      "name": "setup_signal_metrics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "setup_signal_id": {
+          "name": "setup_signal_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric_id": {
+          "name": "metric_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "threshold_value": {
+          "name": "threshold_value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "setup_signal_metrics_setup_signal_id_setup_signals_id_fk": {
+          "name": "setup_signal_metrics_setup_signal_id_setup_signals_id_fk",
+          "tableFrom": "setup_signal_metrics",
+          "tableTo": "setup_signals",
+          "columnsFrom": [
+            "setup_signal_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "setup_signal_metrics_metric_id_strategy_metrics_id_fk": {
+          "name": "setup_signal_metrics_metric_id_strategy_metrics_id_fk",
+          "tableFrom": "setup_signal_metrics",
+          "tableTo": "strategy_metrics",
+          "columnsFrom": [
+            "metric_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategy_metrics": {
+      "name": "strategy_metrics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_value": {
+          "name": "min_value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_value": {
+          "name": "max_value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "strategy_metrics_name_unique": {
+          "name": "strategy_metrics_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategy_performance_metrics": {
+      "name": "strategy_performance_metrics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bot_id": {
+          "name": "bot_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metric_type": {
+          "name": "metric_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period_start": {
+          "name": "period_start",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period_end": {
+          "name": "period_end",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "calculated_at": {
+          "name": "calculated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "strategy_performance_metrics_strategy_version_id_strategy_versions_id_fk": {
+          "name": "strategy_performance_metrics_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "strategy_performance_metrics",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "strategy_performance_metrics_bot_id_bots_id_fk": {
+          "name": "strategy_performance_metrics_bot_id_bots_id_fk",
+          "tableFrom": "strategy_performance_metrics",
+          "tableTo": "bots",
+          "columnsFrom": [
+            "bot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.strategy_version_metrics": {
+      "name": "strategy_version_metrics",
+      "schema": "",
+      "columns": {
+        "strategy_version_id": {
+          "name": "strategy_version_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric_id": {
+          "name": "metric_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "threshold_value": {
+          "name": "threshold_value",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "operator": {
+          "name": "operator",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_required": {
+          "name": "is_required",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "priority": {
+          "name": "priority",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "strategy_version_metrics_strategy_version_id_strategy_versions_id_fk": {
+          "name": "strategy_version_metrics_strategy_version_id_strategy_versions_id_fk",
+          "tableFrom": "strategy_version_metrics",
+          "tableTo": "strategy_versions",
+          "columnsFrom": [
+            "strategy_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "strategy_version_metrics_metric_id_strategy_metrics_id_fk": {
+          "name": "strategy_version_metrics_metric_id_strategy_metrics_id_fk",
+          "tableFrom": "strategy_version_metrics",
+          "tableTo": "strategy_metrics",
+          "columnsFrom": [
+            "metric_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "strategy_version_metrics_strategy_version_id_metric_id_pk": {
+          "name": "strategy_version_metrics_strategy_version_id_metric_id_pk",
+          "columns": [
+            "strategy_version_id",
+            "metric_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
-  "views": {},
   "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
+    "tables": {}
   }
 }

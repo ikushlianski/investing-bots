@@ -3,3 +3,4 @@ export enum Timeframe {
   FOUR_HOURS = "4h",
   ONE_DAY = "1d",
 }
+

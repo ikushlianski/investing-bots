@@ -14,3 +14,4 @@ export enum SignalRole {
   PRECONDITION = "PRECONDITION",
   TRIGGER = "TRIGGER",
 }
+

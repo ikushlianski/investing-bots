@@ -1,27 +1,27 @@
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { pgTable, serial, integer, text, timestamp } from 'drizzle-orm/pg-core'
 import { bots } from './bots.schema'
 import { instruments } from './instruments.schema'
 import { setups } from './setups.schema'
 import { strategyVersions } from './strategy.schema'
 import { numeric } from './types.schema'
 
-export const positions = sqliteTable('positions', {
-  id: int('id').primaryKey({ autoIncrement: true }),
-  botId: int('bot_id')
+export const positions = pgTable('positions', {
+  id: serial('id').primaryKey(),
+  botId: integer('bot_id')
     .notNull()
     .references(() => bots.id),
-  instrumentId: int('instrument_id')
+  instrumentId: integer('instrument_id')
     .notNull()
     .references(() => instruments.id),
-  setupId: int('setup_id').references(() => setups.id),
-  strategyVersionId: int('strategy_version_id').references(
+  setupId: integer('setup_id').references(() => setups.id),
+  strategyVersionId: integer('strategy_version_id').references(
     () => strategyVersions.id
   ),
-  status: text('status').notNull().default('open'), // 'open', 'closed'
+  status: text('status').notNull().default('open'),
   entryPrice: numeric('entry_price', { precision: 20, scale: 8 }).notNull(),
   exitPrice: numeric('exit_price', { precision: 20, scale: 8 }),
   size: numeric('size', { precision: 20, scale: 8 }).notNull(),
   pnl: numeric('pnl', { precision: 20, scale: 8 }),
-  openedAt: text('opened_at').notNull(),
-  closedAt: text('closed_at'),
+  openedAt: timestamp('opened_at').notNull(),
+  closedAt: timestamp('closed_at'),
 })
