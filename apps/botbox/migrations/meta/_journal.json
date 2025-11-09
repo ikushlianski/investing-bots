@@ -8,6 +8,13 @@
       "when": 1762600017572,
       "tag": "0000_lethal_microchip",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762686544942,
+      "tag": "0001_add_user_name",
+      "breakpoints": true
     }
   ]
 }

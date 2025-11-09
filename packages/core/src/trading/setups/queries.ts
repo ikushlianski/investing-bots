@@ -1,4 +1,5 @@
 import { eq, and, inArray, sql } from 'drizzle-orm'
+import type { PgTable } from 'drizzle-orm/pg-core'
 import { SetupState } from './enums'
 import type { DrizzleDatabase } from '../database'
 
@@ -52,14 +53,14 @@ export interface SetupForEvaluation {
 
 export async function getActiveSetupsForInvalidation(
   db: DrizzleDatabase,
-  setupTable: unknown
+  setupTable: PgTable
 ): Promise<SetupForInvalidation[]> {
   const result = (await db
     .select()
     .from(setupTable)
     .where(
       inArray(
-        (setupTable as { state: unknown }).state,
+        (setupTable as any).state,
         [SetupState.FORMING, SetupState.ACTIVE]
       )
     )
@@ -79,14 +80,14 @@ export async function getActiveSetupsForInvalidation(
 
 export async function getActiveSetupsForEvaluation(
   db: DrizzleDatabase,
-  setupTable: unknown
+  setupTable: PgTable
 ): Promise<SetupForEvaluation[]> {
   const result = (await db
     .select()
     .from(setupTable)
     .where(
       inArray(
-        (setupTable as { state: unknown }).state,
+        (setupTable as any).state,
         [SetupState.FORMING, SetupState.ACTIVE]
       )
     )
@@ -113,7 +114,7 @@ export async function getActiveSetupsForEvaluation(
 
 export async function invalidateSetup(
   db: DrizzleDatabase,
-  setupTable: unknown,
+  setupTable: PgTable,
   setupId: number,
   reason: string
 ): Promise<void> {
@@ -123,14 +124,13 @@ export async function invalidateSetup(
       state: SetupState.INVALIDATED,
       invalidatedAt: new Date().toISOString(),
       invalidationReason: reason,
-    } as Record<string, unknown>)
-    .where(eq((setupTable as { id: unknown }).id, setupId))
-    .run()
+    } as Record<string, any>)
+    .where(eq((setupTable as any).id, setupId))
 }
 
 export async function activateSetup(
   db: DrizzleDatabase,
-  setupTable: unknown,
+  setupTable: PgTable,
   setupId: number
 ): Promise<void> {
   await db
@@ -138,14 +138,13 @@ export async function activateSetup(
     .set({
       state: SetupState.ACTIVE,
       activatedAt: new Date().toISOString(),
-    } as Record<string, unknown>)
-    .where(eq((setupTable as { id: unknown }).id, setupId))
-    .run()
+    } as Record<string, any>)
+    .where(eq((setupTable as any).id, setupId))
 }
 
 export async function expireOldSetups(
   db: DrizzleDatabase,
-  setupTable: unknown,
+  setupTable: PgTable,
   currentTime: Date
 ): Promise<void> {
   await db
@@ -153,22 +152,21 @@ export async function expireOldSetups(
     .set({
       state: SetupState.EXPIRED,
       invalidatedAt: currentTime.toISOString(),
-    } as Record<string, unknown>)
+    } as Record<string, any>)
     .where(
       and(
         inArray(
-          (setupTable as { state: unknown }).state,
+          (setupTable as any).state,
           [SetupState.FORMING, SetupState.ACTIVE]
         ),
-        sql`${(setupTable as { expiresAt: unknown }).expiresAt} < ${currentTime.toISOString()}`
+        sql`${(setupTable as any).expiresAt} < ${currentTime.toISOString()}`
       )
     )
-    .run()
 }
 
 export async function countActiveSetups(
   db: DrizzleDatabase,
-  setupTable: unknown
+  setupTable: PgTable
 ): Promise<number> {
   const result = (await db
     .select({
@@ -177,7 +175,7 @@ export async function countActiveSetups(
     .from(setupTable)
     .where(
       inArray(
-        (setupTable as { state: unknown }).state,
+        (setupTable as any).state,
         [SetupState.FORMING, SetupState.ACTIVE]
       )
     )

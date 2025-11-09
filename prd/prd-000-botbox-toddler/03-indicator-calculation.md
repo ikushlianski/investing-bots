@@ -222,7 +222,7 @@ Create script to calculate indicators for all historical candles.
    const TIMEFRAMES = ['60', '240', 'D', 'W']
 
    async function backfillIndicators() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+     const db = createDbConnection(process.env.NEON_URL!)
      const calculator = new IndicatorCalculator()
      const indicatorsRepo = new IndicatorsRepository(db)
 
@@ -369,7 +369,7 @@ Create verification script to check indicator data quality.
    config({ path: '.dev.vars' })
 
    async function verifyIndicators() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+     const db = createDbConnection(process.env.NEON_URL!)
 
      console.log('Verifying indicator calculations...\n')
 
@@ -599,7 +599,7 @@ Verify that new candles get indicators calculated correctly.
    import { IndicatorsRepository } from '../src/db/indicators-repository'
 
    async function testRecording() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+     const db = createDbConnection(process.env.NEON_URL!)
      const marketData = new BybitMarketDataService(true)
      const candlesRepo = new CandlesRepository(db)
      const calculator = new IndicatorCalculator()

@@ -1,5 +1,5 @@
 import { eq, and, sql } from 'drizzle-orm'
-import type { SignalType } from '../types'
+import type { PgTable } from 'drizzle-orm/pg-core'
 import type { DrizzleDatabase } from '../database'
 
 export interface SignalRow {
@@ -19,8 +19,8 @@ export interface SignalForRevalidation extends SignalRow {
 
 export async function getSignalsForRevalidation(
   db: DrizzleDatabase,
-  signalTable: unknown,
-  setupTable: unknown
+  signalTable: PgTable,
+  setupTable: PgTable
 ): Promise<SignalForRevalidation[]> {
   const result = await db
     .select()
@@ -28,34 +28,39 @@ export async function getSignalsForRevalidation(
     .innerJoin(
       setupTable,
       eq(
-        (signalTable as { setupId: unknown }).setupId,
-        (setupTable as { id: unknown }).id
+        (signalTable as any).setupId,
+        (setupTable as any).id
       )
     )
     .where(
       and(
-        eq((signalTable as { stillValid: unknown }).stillValid, true),
-        eq((signalTable as { requiresRecheck: unknown }).requiresRecheck, true),
-        sql`${(setupTable as { state: unknown }).state} IN ('FORMING', 'ACTIVE')`
+        eq((signalTable as any).stillValid, true),
+        eq((signalTable as any).requiresRecheck, true),
+        sql`${(setupTable as any).state} IN ('FORMING', 'ACTIVE')`
       )
     )
 
-  return result.map((row) => ({
-    id: (row[Object.keys(row)[0]] as SignalRow).id,
-    setupId: (row[Object.keys(row)[0]] as SignalRow).setupId,
-    signalType: (row[Object.keys(row)[0]] as SignalRow).signalType,
-    firedAt: (row[Object.keys(row)[0]] as SignalRow).firedAt,
-    value: (row[Object.keys(row)[0]] as SignalRow).value,
-    detectedOnTimeframe: (row[Object.keys(row)[0]] as SignalRow).detectedOnTimeframe,
-    stillValid: (row[Object.keys(row)[0]] as SignalRow).stillValid,
-    requiresRecheck: (row[Object.keys(row)[0]] as SignalRow).requiresRecheck,
-    instrumentId: (row[Object.keys(row)[1]] as { instrumentId: number }).instrumentId,
-  }))
+  return result.map((row: any) => {
+    const signalData = row[Object.keys(row)[0]] as SignalRow
+    const setupData = row[Object.keys(row)[1]] as { instrumentId: number }
+
+    return {
+      id: signalData.id,
+      setupId: signalData.setupId,
+      signalType: signalData.signalType,
+      firedAt: signalData.firedAt,
+      value: signalData.value,
+      detectedOnTimeframe: signalData.detectedOnTimeframe,
+      stillValid: signalData.stillValid,
+      requiresRecheck: signalData.requiresRecheck,
+      instrumentId: setupData.instrumentId,
+    }
+  })
 }
 
 export async function invalidateSignal(
   db: DrizzleDatabase,
-  signalTable: unknown,
+  signalTable: PgTable,
   signalId: number
 ): Promise<void> {
   await db
@@ -63,28 +68,26 @@ export async function invalidateSignal(
     .set({
       stillValid: false,
       invalidatedAt: new Date().toISOString(),
-    } as Record<string, unknown>)
-    .where(eq((signalTable as { id: unknown }).id, signalId))
-    .run()
+    } as Record<string, any>)
+    .where(eq((signalTable as any).id, signalId))
 }
 
 export async function updateSignalRecheckTimestamp(
   db: DrizzleDatabase,
-  signalTable: unknown,
+  signalTable: PgTable,
   signalId: number
 ): Promise<void> {
   await db
     .update(signalTable)
     .set({
       lastRecheckedAt: new Date().toISOString(),
-    } as Record<string, unknown>)
-    .where(eq((signalTable as { id: unknown }).id, signalId))
-    .run()
+    } as Record<string, any>)
+    .where(eq((signalTable as any).id, signalId))
 }
 
 export async function countValidSignals(
   db: DrizzleDatabase,
-  signalTable: unknown,
+  signalTable: PgTable,
   setupId: number
 ): Promise<number> {
   const result = (await db
@@ -94,8 +97,8 @@ export async function countValidSignals(
     .from(signalTable)
     .where(
       and(
-        eq((signalTable as { setupId: unknown }).setupId, setupId),
-        eq((signalTable as { stillValid: unknown }).stillValid, true)
+        eq((signalTable as any).setupId, setupId),
+        eq((signalTable as any).stillValid, true)
       )
     )
     .all()) as { count: number }[]

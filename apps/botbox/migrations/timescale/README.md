@@ -14,7 +14,7 @@ This directory contains SQL scripts for setting up TimescaleDB hypertable for th
 Run this once per database:
 
 ```bash
-psql $DATABASE_URL -f 01-enable-timescaledb.sql
+psql $NEON_URL -f 01-enable-timescaledb.sql
 ```
 
 Or via Neon SQL Editor:
@@ -27,7 +27,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 After running Drizzle migrations to create the candles table, convert it to a hypertable:
 
 ```bash
-psql $DATABASE_URL -f 02-create-hypertable.sql
+psql $NEON_URL -f 02-create-hypertable.sql
 ```
 
 ### 3. Optional: Set Retention Policy
@@ -35,7 +35,7 @@ psql $DATABASE_URL -f 02-create-hypertable.sql
 If you want automatic data cleanup:
 
 ```bash
-psql $DATABASE_URL -f 03-retention-policy.sql
+psql $NEON_URL -f 03-retention-policy.sql
 ```
 
 ## Verification
@@ -50,8 +50,8 @@ WHERE hypertable_name = 'candles';
 ## Migration Order
 
 1. Run Drizzle migrations: `npm run db:generate && npm run db:push`
-2. Enable TimescaleDB: `psql $DATABASE_URL -f migrations/timescale/01-enable-timescaledb.sql`
-3. Create hypertable: `psql $DATABASE_URL -f migrations/timescale/02-create-hypertable.sql`
+2. Enable TimescaleDB: `psql $NEON_URL -f migrations/timescale/01-enable-timescaledb.sql`
+3. Create hypertable: `psql $NEON_URL -f migrations/timescale/02-create-hypertable.sql`
 4. (Optional) Set retention: Edit and run `03-retention-policy.sql`
 
 ## Benefits

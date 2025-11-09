@@ -231,8 +231,6 @@ CREATE TABLE "candles" (
 	CONSTRAINT "candles_instrument_id_timeframe_timestamp_pk" PRIMARY KEY("instrument_id","timeframe","timestamp")
 );
 --> statement-breakpoint
-SELECT create_hypertable('candles', 'timestamp', if_not_exists => TRUE);
---> statement-breakpoint
 CREATE TABLE "trades" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"bot_id" integer NOT NULL,
@@ -425,5 +423,5 @@ ALTER TABLE "strategy_performance_metrics" ADD CONSTRAINT "strategy_performance_
 ALTER TABLE "strategy_performance_metrics" ADD CONSTRAINT "strategy_performance_metrics_bot_id_bots_id_fk" FOREIGN KEY ("bot_id") REFERENCES "public"."bots"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "strategy_version_metrics" ADD CONSTRAINT "strategy_version_metrics_strategy_version_id_strategy_versions_id_fk" FOREIGN KEY ("strategy_version_id") REFERENCES "public"."strategy_versions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "strategy_version_metrics" ADD CONSTRAINT "strategy_version_metrics_metric_id_strategy_metrics_id_fk" FOREIGN KEY ("metric_id") REFERENCES "public"."strategy_metrics"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "candles_instrument_timeframe_timestamp_idx" ON "candles" USING btree ("instrument_id","timeframe","timestamp" DESC NULLS LAST);--> statement-breakpoint
-CREATE INDEX "candles_timestamp_idx" ON "candles" USING btree ("timestamp" DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS "candles_instrument_timeframe_timestamp_idx" ON "candles" USING btree ("instrument_id","timeframe","timestamp" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "candles_timestamp_idx" ON "candles" USING btree ("timestamp" DESC NULLS LAST);

@@ -7,6 +7,9 @@ const envSchema = z.object({
   SESSION_SECRET: z
     .string()
     .min(32, 'SESSION_SECRET must be at least 32 characters'),
+  INITIAL_USER_EMAIL: z.string().default('admin@botbox.local'),
+  INITIAL_USER_PASSWORD: z.string().optional(),
+  INITIAL_USER_NAME: z.string().optional(),
   BINANCE_API_KEY: z.string().optional(),
   BINANCE_API_SECRET: z.string().optional(),
   BYBIT_API_KEY: z.string().optional(),
@@ -22,10 +25,18 @@ const getRawEnv = (): Record<string, string | undefined> => {
     return process.env
   }
 
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env as Record<string, string | undefined>
+  }
+
   return {}
 }
 
 export const getEnv = (): Env => {
+  if (typeof window !== 'undefined') {
+    throw new Error('getEnv() cannot be called on the client side')
+  }
+
   if (cachedEnv) {
     return cachedEnv
   }

@@ -1,13 +1,94 @@
-Welcome to your new TanStack app! 
+Welcome to your new TanStack app!
 
 # Getting Started
+
+## Environment Setup
+
+You should be in `apps/botbox` dir.
+
+This application uses TanStack Start with Cloudflare Workers, which requires TWO environment files:
+
+### 1. `.env` - For Node.js Scripts
+
+Used by database tools (Drizzle migrations, seeding scripts) and other Node.js processes.
+
+Copy `.env.example` to `.env` and fill in:
+
+```bash
+NODE_ENV=development
+SESSION_SECRET=dev-secret-key-minimum-32-chars-long-for-development-only
+NEON_URL=postgresql://user:password@hostname/database
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://user:password@hostname/database
+
+INITIAL_USER_EMAIL=admin@botbox.local
+INITIAL_USER_PASSWORD=your-password-here
+INITIAL_USER_NAME=your-name-here
+
+BINANCE_API_KEY=
+BINANCE_API_SECRET=
+
+BYBIT_API_KEY=
+BYBIT_API_SECRET=
+```
+
+### 2. `.dev.vars` - For Cloudflare Development Server
+
+Used by the Vite dev server when running `npm run dev`. Must contain the same variables as `.env`:
+
+```bash
+NODE_ENV=development
+SESSION_SECRET=dev-secret-key-minimum-32-chars-long-for-development-only
+NEON_URL=postgresql://user:password@hostname/database
+
+INITIAL_USER_EMAIL=admin@botbox.local
+INITIAL_USER_PASSWORD=your-password-here
+INITIAL_USER_NAME=your-name-here
+
+BYBIT_API_KEY=
+BYBIT_API_SECRET=
+BYBIT_TESTNET=true
+```
+
+**Important:** Both files must have the same values for shared variables. If you update one, update the other.
+
+**Required Variables:**
+- `SESSION_SECRET`: Must be at least 32 characters long
+- `NEON_URL`: Your PostgreSQL connection string
+- `INITIAL_USER_PASSWORD`: Password for the initial admin user (required for seeding)
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+## Database Seeding
+
+Before running the application, you need to seed the database with the initial user. The seed script requires `INITIAL_USER_PASSWORD` to be set in your `.env` file.
+
+To seed the database:
+
+```bash
+npm run db:seed
+```
+
+This will create an initial user with:
+
+- Email: `admin@botbox.local` (or the value of `INITIAL_USER_EMAIL` if set)
+- Password: The value of `INITIAL_USER_PASSWORD` from your `.env` file
+- Name: The value of `INITIAL_USER_NAME` from your `.env` file (optional)
+
+**Note:** If a user with the same email already exists, the seed script will skip creating a new user.
+
+## Running the Application
 
 To run this application:
 
 ```bash
-npm install
-npm run start
+npm run dev
 ```
+
+The application will start on `http://localhost:3001`
 
 # Building For Production
 
@@ -29,10 +110,8 @@ npm run test
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-
-
-
 ## Routing
+
 This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
 
 ### Adding A Route
@@ -48,7 +127,7 @@ Now that you have two routes you can use a `Link` component to navigate between 
 To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
 
 ```tsx
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router'
 ```
 
 Then anywhere in your JSX you can use it like so:
@@ -71,7 +150,7 @@ Here is an example layout that includes a header:
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import { Link } from "@tanstack/react-router";
+import { Link } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
   component: () => (
@@ -93,7 +172,6 @@ The `<TanStackRouterDevtools />` component is not required so you can remove it 
 
 More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
 
-
 ## Data Fetching
 
 There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
@@ -103,26 +181,26 @@ For example:
 ```tsx
 const peopleRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/people",
+  path: '/people',
   loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
+    const response = await fetch('https://swapi.dev/api/people')
     return response.json() as Promise<{
       results: {
-        name: string;
-      }[];
-    }>;
+        name: string
+      }[]
+    }>
   },
   component: () => {
-    const data = peopleRoute.useLoaderData();
+    const data = peopleRoute.useLoaderData()
     return (
       <ul>
         {data.results.map((person) => (
           <li key={person.name}>{person.name}</li>
         ))}
       </ul>
-    );
+    )
   },
-});
+})
 ```
 
 Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
@@ -140,29 +218,29 @@ npm install @tanstack/react-query @tanstack/react-query-devtools
 Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
 
 ```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // ...
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 // ...
 
 if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
+  const root = ReactDOM.createRoot(rootElement)
 
   root.render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  );
+  )
 }
 ```
 
 You can also add TanStack Query Devtools to the root route (optional).
 
 ```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -172,25 +250,25 @@ const rootRoute = createRootRoute({
       <TanStackRouterDevtools />
     </>
   ),
-});
+})
 ```
 
 Now you can use `useQuery` to fetch your data.
 
 ```tsx
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query'
 
-import "./App.css";
+import './App.css'
 
 function App() {
   const { data } = useQuery({
-    queryKey: ["people"],
+    queryKey: ['people'],
     queryFn: () =>
-      fetch("https://swapi.dev/api/people")
+      fetch('https://swapi.dev/api/people')
         .then((res) => res.json())
         .then((data) => data.results as { name: string }[]),
     initialData: [],
-  });
+  })
 
   return (
     <div>
@@ -200,10 +278,10 @@ function App() {
         ))}
       </ul>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
 ```
 
 You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
@@ -221,24 +299,24 @@ npm install @tanstack/store
 Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
 
 ```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
+import { useStore } from '@tanstack/react-store'
+import { Store } from '@tanstack/store'
+import './App.css'
 
-const countStore = new Store(0);
+const countStore = new Store(0)
 
 function App() {
-  const count = useStore(countStore);
+  const count = useStore(countStore)
   return (
     <div>
       <button onClick={() => countStore.setState((n) => n + 1)}>
         Increment - {count}
       </button>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
 ```
 
 One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
@@ -246,21 +324,21 @@ One of the many nice features of TanStack Store is the ability to derive state f
 Let's check this out by doubling the count using derived state.
 
 ```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
+import { useStore } from '@tanstack/react-store'
+import { Store, Derived } from '@tanstack/store'
+import './App.css'
 
-const countStore = new Store(0);
+const countStore = new Store(0)
 
 const doubledStore = new Derived({
   fn: () => countStore.state * 2,
   deps: [countStore],
-});
-doubledStore.mount();
+})
+doubledStore.mount()
 
 function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
+  const count = useStore(countStore)
+  const doubledCount = useStore(doubledStore)
 
   return (
     <div>
@@ -269,10 +347,10 @@ function App() {
       </button>
       <div>Doubled - {doubledCount}</div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
 ```
 
 We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.

@@ -54,7 +54,6 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
 @theme {
   --color-background: hsl(var(--background));
@@ -97,5 +96,12 @@
   code {
     font-family:
       source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  }
+}
+
+@layer utilities {
+  .r8gkd3 {
+    position: absolute;
+    left: -9999px;
   }
 }

@@ -12,10 +12,10 @@ let cachedDb: Database | undefined
 let cachedPool: Pool | undefined
 
 const getDatabaseUrl = (): string => {
-  const url = process.env.DATABASE_URL
+  const url = process.env.NEON_URL
 
   if (!url) {
-    throw new Error('DATABASE_URL environment variable is not set')
+    throw new Error('NEON_URL environment variable is not set')
   }
 
   return url

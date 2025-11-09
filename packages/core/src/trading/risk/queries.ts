@@ -1,4 +1,5 @@
-import { eq, and, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
+import type { PgTable } from "drizzle-orm/pg-core";
 import type { DrizzleDatabase } from "../database";
 
 export interface RiskContext {
@@ -11,9 +12,7 @@ export interface RiskContext {
 
 export async function collectRiskContext(
   db: DrizzleDatabase,
-  positionTable: unknown,
-  tradeTable: unknown,
-  instrumentId: number
+  positionTable: PgTable
 ): Promise<RiskContext> {
   const todos: { id: string; description: string }[] = [];
 
@@ -21,32 +20,15 @@ export async function collectRiskContext(
 
   today.setHours(0, 0, 0, 0);
 
-  const openPositionsResult = await db
+  const openPositionsResult = (await db
     .select({
       count: sql<number>`count(*)`.as("count"),
     })
     .from(positionTable)
-    .where(eq((positionTable as { status: unknown }).status, "open"));
+    .where(eq((positionTable as any).status, "open"))
+    .all()) as { count: number }[];
 
   const openPositions = openPositionsResult[0]?.count ?? 0;
-
-  const dailyLossResult = await db
-    .select({
-      totalLoss: sql<number>`sum(${
-        (tradeTable as { realizedPnl: unknown }).realizedPnl
-      })`.as("total_loss"),
-    })
-    .from(tradeTable)
-    .where(
-      and(
-        sql`${
-          (tradeTable as { entryTime: unknown }).entryTime
-        } >= ${today.toISOString()}`,
-        sql`${(tradeTable as { realizedPnl: unknown }).realizedPnl} < 0`
-      )
-    );
-
-  const dailyLoss = dailyLossResult[0]?.totalLoss ?? 0;
 
   todos.push({
     id: "TODO_CORRELATION_MATRIX",

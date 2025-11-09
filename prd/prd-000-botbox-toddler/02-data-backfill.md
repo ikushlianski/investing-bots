@@ -260,7 +260,7 @@ Create the main backfill script that coordinates fetching and storing all histor
    const YEARS_TO_BACKFILL = 2
 
    async function backfillCandles() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+    const db = createDbConnection(process.env.NEON_URL!)
      const marketData = new BybitMarketDataService(true)
      const candlesRepo = new CandlesRepository(db)
 
@@ -392,7 +392,7 @@ Build a script to verify data quality and completeness.
    config({ path: '.dev.vars' })
 
    async function verifyCandles() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+    const db = createDbConnection(process.env.NEON_URL!)
 
      console.log('Verifying candle data...\n')
 
@@ -651,7 +651,7 @@ Test the candle recording logic before deploying cron.
    config({ path: '.dev.vars' })
 
    async function testRecording() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+    const db = createDbConnection(process.env.NEON_URL!)
      const marketData = new BybitMarketDataService(true)
      const candlesRepo = new CandlesRepository(db)
      const recorder = new CandleRecorder(db, marketData, candlesRepo)

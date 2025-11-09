@@ -8,9 +8,17 @@ import { users } from '../db/schema'
 import { useAppSession } from '../utils/session'
 import { verifyPassword } from '../utils/password'
 
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number')
+
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: passwordSchema,
+  website: z.string().optional(),
   redirectTo: z.string().optional(),
 })
 
@@ -33,6 +41,13 @@ const resolveRedirectTarget = (redirectTo?: string) => {
 export const loginFn = createServerFn({ method: 'POST' })
   .inputValidator(loginSchema)
   .handler(async ({ data }) => {
+    if (data.website) {
+      return {
+        success: false as const,
+        error: 'Invalid email or password',
+      }
+    }
+
     const db = await getDb()
     const session = await useAppSession()
 

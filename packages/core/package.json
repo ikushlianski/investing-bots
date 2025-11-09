@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@investing-tool/utils": "workspace:*",
-    "drizzle-orm": "^0.36.3",
+    "drizzle-orm": "^0.44.7",
     "zod": "^4.1.12"
   },
   "devDependencies": {

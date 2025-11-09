@@ -18,7 +18,7 @@ Configure production secrets in Cloudflare.
    cd apps/botbox
    npx wrangler secret put BYBIT_API_KEY
    npx wrangler secret put BYBIT_API_SECRET
-   npx wrangler secret put DATABASE_URL
+   npx wrangler secret put NEON_URL
    ```
 
 2. Update wrangler.jsonc with production vars:

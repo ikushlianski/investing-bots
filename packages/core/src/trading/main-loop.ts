@@ -1,3 +1,4 @@
+import type { PgTable } from "drizzle-orm/pg-core";
 import { isNewCandleClosed, getMinutesSince } from "./candle-detection";
 import { checkSignalStillValid } from "./signal-revalidation";
 import { checkContextRegimeStillValid } from "./context-validation";
@@ -47,12 +48,12 @@ export interface Database {
 }
 
 export interface DatabaseTables {
-  setups: unknown;
-  setupSignals: unknown;
-  marketRegimes: unknown;
-  instruments: unknown;
-  positions: unknown;
-  trades: unknown;
+  setups: PgTable;
+  setupSignals: PgTable;
+  marketRegimes: PgTable;
+  instruments: PgTable;
+  positions: PgTable;
+  trades: PgTable;
 }
 
 export interface Exchange {
@@ -324,17 +325,7 @@ async function checkSetupInvalidations(
     if (setup.contextRegimeId && setup.contextTimeframe) {
       const currentContextRegime = await getCurrentRegime(
         db,
-        tables.marketRegimes as {
-          id: unknown;
-          instrumentId: unknown;
-          timeframe: unknown;
-          stillActive: unknown;
-          regimeType: unknown;
-          trendStrength: unknown;
-          priceVsMa: unknown;
-          volatility: unknown;
-          startedAt: unknown;
-        },
+        tables.marketRegimes,
         setup.instrumentId,
         setup.contextTimeframe as Timeframe
       );
@@ -525,25 +516,13 @@ async function triggerTrade(
   const accountBalance = await exchange.getAccountBalance();
   const riskContext = await collectRiskContext(
     db,
-    tables.positions,
-    tables.trades,
-    setup.instrumentId
+    tables.positions
   );
   const regimeRecord =
     setup.contextTimeframe !== null
       ? await getCurrentRegime(
           db,
-          tables.marketRegimes as {
-            id: unknown;
-            instrumentId: unknown;
-            timeframe: unknown;
-            stillActive: unknown;
-            regimeType: unknown;
-            trendStrength: unknown;
-            priceVsMa: unknown;
-            volatility: unknown;
-            startedAt: unknown;
-          },
+          tables.marketRegimes,
           setup.instrumentId,
           setup.contextTimeframe as Timeframe
         )

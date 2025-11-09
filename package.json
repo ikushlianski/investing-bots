@@ -7,6 +7,7 @@
     "install:all": "pnpm install",
     "build:all": "pnpm --recursive build",
     "test:all": "pnpm --recursive test",
+    "typecheck": "pnpm --recursive typecheck",
     "prepare": "husky"
   },
   "keywords": [],

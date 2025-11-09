@@ -4,6 +4,15 @@ import { z } from 'zod'
 
 import { getCurrentUserFn, loginFn } from '../server/auth'
 
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number')
+
+const emailSchema = z.string().email('Invalid email format')
+
 const searchSchema = z
   .object({
     redirect: z.string().optional(),
@@ -43,10 +52,47 @@ function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [website, setWebsite] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const validateForm = () => {
+    let isValid = true
+
+    try {
+      emailSchema.parse(email)
+      setEmailError(null)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setEmailError(err.issues[0]?.message ?? 'Invalid email')
+        isValid = false
+      }
+    }
+
+    try {
+      passwordSchema.parse(password)
+      setPasswordError(null)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setPasswordError(err.issues[0]?.message ?? 'Invalid password')
+        isValid = false
+      }
+    }
+
+    return isValid
+  }
+
   const attemptLogin = async () => {
+    setError(null)
+    setEmailError(null)
+    setPasswordError(null)
+
+    if (!validateForm()) {
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -54,6 +100,7 @@ function LoginPage() {
         data: {
           email,
           password,
+          website,
           redirectTo: search.redirect,
         },
       })) as LoginResponse
@@ -97,36 +144,87 @@ function LoginPage() {
           }}
         >
           <div className="space-y-4">
+            <input
+              type="text"
+              name="website"
+              className="r8gkd3"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={website}
+              onChange={(event) => {
+                setWebsite(event.target.value)
+              }}
+            />
+
             <label className="block text-left text-sm font-medium text-slate-200">
               Email
               <input
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/40"
+                className={`mt-1 w-full rounded-lg border px-4 py-3 text-sm text-white outline-none transition ${
+                  emailError
+                    ? 'border-red-500 bg-slate-900 focus:border-red-500 focus:ring-2 focus:ring-red-500/40'
+                    : 'border-slate-700 bg-slate-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/40'
+                }`}
                 type="email"
                 value={email}
                 onChange={(event) => {
                   setEmail(event.target.value)
                   setError(null)
+                  setEmailError(null)
+                }}
+                onBlur={() => {
+                  try {
+                    emailSchema.parse(email)
+                    setEmailError(null)
+                  } catch (err) {
+                    if (err instanceof z.ZodError) {
+                      setEmailError(err.issues[0]?.message ?? 'Invalid email')
+                    }
+                  }
                 }}
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
               />
+              {emailError && (
+                <p className="mt-1 text-xs text-red-400">{emailError}</p>
+              )}
             </label>
 
             <label className="block text-left text-sm font-medium text-slate-200">
               Password
               <input
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/40"
+                className={`mt-1 w-full rounded-lg border px-4 py-3 text-sm text-white outline-none transition ${
+                  passwordError
+                    ? 'border-red-500 bg-slate-900 focus:border-red-500 focus:ring-2 focus:ring-red-500/40'
+                    : 'border-slate-700 bg-slate-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/40'
+                }`}
                 type="password"
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value)
                   setError(null)
+                  setPasswordError(null)
+                }}
+                onBlur={() => {
+                  try {
+                    passwordSchema.parse(password)
+                    setPasswordError(null)
+                  } catch (err) {
+                    if (err instanceof z.ZodError) {
+                      setPasswordError(
+                        err.issues[0]?.message ?? 'Invalid password'
+                      )
+                    }
+                  }
                 }}
                 required
                 autoComplete="current-password"
                 placeholder="Enter your password"
               />
+              {passwordError && (
+                <p className="mt-1 text-xs text-red-400">{passwordError}</p>
+              )}
             </label>
           </div>
 
@@ -139,7 +237,7 @@ function LoginPage() {
           <button
             className="flex w-full items-center justify-center rounded-lg bg-cyan-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:bg-cyan-950 disabled:text-slate-500"
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!emailError || !!passwordError}
           >
             {isSubmitting ? 'Signing in…' : 'Sign In'}
           </button>

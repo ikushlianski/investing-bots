@@ -1,21 +1,12 @@
 import { eq, and, desc } from 'drizzle-orm'
+import type { PgTable } from 'drizzle-orm/pg-core'
 import type { MarketRegime } from '../context-validation'
 import type { Timeframe as TimeframeType } from '../types'
 import type { DrizzleDatabase } from '../database'
 
 export async function getCurrentRegime(
   db: DrizzleDatabase,
-  regimeTable: {
-    id: unknown
-    instrumentId: unknown
-    timeframe: unknown
-    stillActive: unknown
-    regimeType: unknown
-    trendStrength: unknown
-    priceVsMa: unknown
-    volatility: unknown
-    startedAt: unknown
-  },
+  regimeTable: PgTable,
   instrumentId: number,
   timeframe: TimeframeType
 ): Promise<MarketRegime | null> {
@@ -24,12 +15,12 @@ export async function getCurrentRegime(
     .from(regimeTable)
     .where(
       and(
-        eq(regimeTable.instrumentId, instrumentId),
-        eq(regimeTable.timeframe, timeframe),
-        eq(regimeTable.stillActive, true)
+        eq((regimeTable as any).instrumentId, instrumentId),
+        eq((regimeTable as any).timeframe, timeframe),
+        eq((regimeTable as any).stillActive, true)
       )
     )
-    .orderBy(desc(regimeTable.startedAt))
+    .orderBy(desc((regimeTable as any).startedAt))
     .limit(1)
     .all()
 

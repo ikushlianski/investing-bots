@@ -535,7 +535,7 @@ Create script to test full execution flow end-to-end.
    config({ path: '.dev.vars' })
 
    async function testExecution() {
-     const db = createDbConnection(process.env.DATABASE_URL!)
+     const db = createDbConnection(process.env.NEON_URL!)
      const setupsRepo = new SetupsRepository(db)
 
      console.log('Testing trade execution flow...\n')

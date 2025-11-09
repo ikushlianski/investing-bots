@@ -21,7 +21,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:test": "tsx scripts/test-connection.ts"
+    "db:test": "tsx scripts/test-connection.ts",
+    "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.13.8",
@@ -56,6 +57,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/coverage-v8": "^3.2.4",
+    "dotenv": "^17.2.3",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",

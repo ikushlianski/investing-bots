@@ -23,6 +23,16 @@ coverage
 *.swo
 *~
 
+# AI tools and assistants
+.cursor/
+.codex/
+.claude/
+.ai/
+.copilot/
+.github/copilot/
+.gemini/
+.gemini-clipboard/
+
 # Logs
 *.log
 
