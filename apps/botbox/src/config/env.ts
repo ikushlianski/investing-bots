@@ -1,12 +1,17 @@
 import { z } from 'zod'
 
+const MIN_SESSION_SECRET_LENGTH = 32
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
   SESSION_SECRET: z
     .string()
-    .min(32, 'SESSION_SECRET must be at least 32 characters'),
+    .min(
+      MIN_SESSION_SECRET_LENGTH,
+      `SESSION_SECRET must be at least ${MIN_SESSION_SECRET_LENGTH} characters`
+    ),
   INITIAL_USER_EMAIL: z.string().default('admin@botbox.local'),
   INITIAL_USER_PASSWORD: z.string().optional(),
   INITIAL_USER_NAME: z.string().optional(),
@@ -32,21 +37,9 @@ const getRawEnv = (): Record<string, string | undefined> => {
   return {}
 }
 
-export const getEnv = (): Env => {
-  if (typeof window !== 'undefined') {
-    throw new Error('getEnv() cannot be called on the client side')
-  }
-
-  if (cachedEnv) {
-    return cachedEnv
-  }
-
-  const rawEnv = getRawEnv()
-
+const validateEnv = (rawEnv: Record<string, string | undefined>): Env => {
   try {
-    cachedEnv = envSchema.parse(rawEnv)
-
-    return cachedEnv
+    return envSchema.parse(rawEnv)
   } catch (error) {
     if (error instanceof z.ZodError) {
       const issues = error.issues
@@ -58,6 +51,22 @@ export const getEnv = (): Env => {
 
     throw error
   }
+}
+
+export const getEnv = (): Env => {
+  if (typeof window !== 'undefined') {
+    throw new Error('getEnv() cannot be called on the client side')
+  }
+
+  if (cachedEnv) {
+    return cachedEnv
+  }
+
+  const rawEnv = getRawEnv()
+
+  cachedEnv = validateEnv(rawEnv)
+
+  return cachedEnv
 }
 
 export const env = new Proxy({} as Env, {

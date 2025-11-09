@@ -48,7 +48,7 @@ export const loginFn = createServerFn({ method: 'POST' })
       }
     }
 
-    const db = await getDb()
+    const db = getDb()
     const session = await useAppSession()
 
     const user = await db.query.users.findFirst({
@@ -103,7 +103,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       return null
     }
 
-    const db = await getDb()
+    const db = getDb()
     const user = await db.query.users.findFirst({
       where: eq(users.id, session.data.userId),
     })

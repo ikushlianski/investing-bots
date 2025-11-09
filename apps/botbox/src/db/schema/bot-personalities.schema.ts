@@ -1,5 +1,13 @@
 import { sql } from 'drizzle-orm'
-import { pgTable, serial, integer, text, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  serial,
+  integer,
+  text,
+  timestamp,
+  boolean,
+  jsonb,
+} from 'drizzle-orm/pg-core'
 import { bots } from './bots.schema'
 import { numeric } from './types.schema'
 
@@ -43,7 +51,9 @@ export const botPersonalities = pgTable('bot_personalities', {
   })
     .notNull()
     .default('10'),
-  maxConcurrentPositions: integer('max_concurrent_positions').notNull().default(3),
+  maxConcurrentPositions: integer('max_concurrent_positions')
+    .notNull()
+    .default(3),
   minSetupQuality: numeric('min_setup_quality', { precision: 4, scale: 2 })
     .notNull()
     .default('0.6'),

@@ -67,7 +67,7 @@ for PACKAGE_DIR in $PROCESSED_PACKAGES; do
     fi
 
     echo "  🔬 Type checking staged files..."
-    if ! (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit --skipLibCheck $RELATIVE_FILES 2>&1 | grep -v "node_modules"); then
+    if ! (cd "$PACKAGE_DIR" && pnpm exec tsc --noEmit 2>&1 | grep -v "node_modules"); then
       echo "  ❌ Type checking failed"
       HAS_ERRORS=true
     fi

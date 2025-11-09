@@ -4,7 +4,7 @@ import { bots } from './schema/bots.schema'
 import { exchanges } from './schema/exchanges.schema'
 
 export async function exampleTransaction() {
-  const db = await getDb()
+  const db = getDb()
 
   await db.transaction(async (tx) => {
     await tx
@@ -17,7 +17,7 @@ export async function exampleTransaction() {
 }
 
 export async function exampleNestedTransaction() {
-  const db = await getDb()
+  const db = getDb()
 
   await db.transaction(async (tx) => {
     await tx
